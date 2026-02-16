@@ -1,6 +1,7 @@
 <?php
 
-$adminPassword = $_SERVER['ADMIN_PASSWORD'] ?? '';
+//$adminPassword = $_SERVER['ADMIN_PASSWORD'] ?? '';
+$adminPassword = $_SERVER['ADMIN_PASSWORD'] ?? '@llysas888';
 $cookieName = 'pagifier_auth';
 $cookieToken = 'pgf_' . hash('sha256', 'pagifier_secret_key_2024');
 
