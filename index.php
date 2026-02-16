@@ -155,6 +155,7 @@ $categoryLabels = [
                     <p>Si quieres ver/ocultar todas las landings disponibles pincha <span class="openiframe">aquí</span></p>
                     <p class="iframeenglish">&nbsp; If you want to show/hide all available landings press <span class="openiframe">here</span></p>
                 </div>
+                <iframe src="_old/index.html" name="all_landings" id="iframe" style="display: none; resize: vertical;overflow: auto"></iframe>
             </div>
             <div class="contentcountries">
                 <!-- PAISES -->

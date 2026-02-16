@@ -1,0 +1,949 @@
+* {
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+body, html {
+    scroll-behavior: smooth;
+}
+body {
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+input, select {
+    border: 0;
+    outline: 0;
+} 
+:focus {
+    outline: none;
+    border: 0;
+}
+.blockleft {
+    width: 100%;
+    background-color: #0093E9;
+    box-shadow: 0 2px 10px 0 rgb(2 88 232 / 40%);
+    border-bottom: 2px solid #80D0C7;
+}
+.blockleft .flags {
+    display: flex;
+    flex-direction: row; 
+    justify-content: space-around;
+    padding: 0 5px 0 10px;
+    position: relative;
+}
+.blockleft .flags:after {
+    content: "";
+    position: absolute;
+    height: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-image: none;
+    z-index: 1;
+    cursor: initial;
+}
+.blockleft .flags .countrylink {
+    width: auto;
+    background-color: transparent;
+    border: 0;
+    outline: 0;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    color: #fff;
+    font-size: 14px;
+    padding-left: 0;
+    padding-right: 10px;
+    margin-bottom: 0;
+    cursor: pointer;
+    position: relative;
+}
+.blockleft .flags .countrylink:after {
+    content: "";
+    height: 0;
+    bottom: 0;
+    left: 0px;
+    background-image: none;
+}
+.blockleft .flags .countrylink#netherlands {
+    align-items: flex-start;
+    padding-top: 17px;
+}
+.blockleft .flags .countrylink#uk {
+    align-items: flex-start;
+    padding-top: 9px;
+}
+.blockleft .flags .countrylink#france {
+    align-items: flex-start;
+    padding-top: 9px;
+}
+.blockleft .flags .countrylink#germany {
+    align-items: flex-start;
+    padding-top: 9px;
+}
+.blockleft .flags .countrylink#spain {
+    align-items: flex-start;
+    padding-top: 17px;
+}
+.blockleft .flags .linedivisor  {
+    display: none;
+}
+/*.blockleft .flags .countrylink:last-child:after {
+    background-color: rgba(0,0,0,0);
+}*/
+.blockleft .flags .countrylink:hover {
+    background-color: rgba(255,255,255,.1);
+}
+.blockleft .flags .buttonactive {
+    background-image: linear-gradient(to right, #1CD8D2 0%, #93EDC7  51%, #1CD8D2  100%);       
+    text-shadow: .5px .5px 2px rgba(0,0,0,.4);
+    transition: 0.5s;
+    background-size: 200% auto;
+}
+.blockleft .flags .buttonactive:hover {
+    background-position: right center; /* change the direction of the change here */
+    text-decoration: none;
+}
+#denmark:before {
+    content: url(../images/denmark.svg);
+    width: 45px;
+    height: 45px;
+    margin-right: 10px;
+    position: absolute;
+    left: 10px;
+}
+#finland:before {
+    content: url(../images/finland.svg);
+    width: 45px;
+    height: 45px;
+    margin-right: 10px;
+    position: absolute;
+    left: 10px;
+}
+#france:before {
+    content: url(../images/france.svg);
+    width: 45px;
+    height: 45px;
+    position: absolute;
+    top: 19px;
+    left: 10px;
+}
+#france:after {
+    content: "(France, Belgique, Luxembourg, Suisse)";
+    line-height: 1.4;
+    position: absolute;
+    top: 29px;
+    left: 65px;
+    font-size: 12px;
+    color: #eeeeee;
+}
+#germany:before {
+    content: url(../images/germany.svg);
+    width: 45px;
+    height: 45px;
+    position: absolute;
+    top: 19px;
+    left: 10px;
+}
+#germany:after {
+    content: "(Deutschland, Schweiz, Österreich)";
+    line-height: 1.4;
+    position: absolute;
+    top: 29px;
+    left: 65px;
+    font-size: 12px;
+    color: #eeeeee;
+}
+#italy:before {
+    content: url(../images/italy.svg);
+    width: 45px;
+    height: 45px;
+    margin-right: 10px;
+    position: absolute;
+    left: 10px;
+}
+#netherlands:before {
+    content: url(../images/netherlands.svg);
+    width: 45px;
+    height: 45px;
+    position: absolute;
+    top: 19px;
+    left: 10px;
+}
+#netherlands:after {
+    content: " (Nederland, België)";
+    position: absolute;
+    top: 37px;
+    left: 65px;
+    font-size: 12px;
+    color: #eeeeee;
+}
+#norway:before {
+    content: url(../images/norway.svg);
+    width: 45px;
+    height: 45px;
+    margin-right: 10px;
+    position: absolute;
+    left: 10px;
+}
+#poland:before {
+    content: url(../images/poland.svg);
+    width: 45px;
+    height: 45px;
+    margin-right: 10px;
+    position: absolute;
+    left: 10px;
+}
+#spain:before {
+    content: url(../images/spain.svg);
+    width: 45px;
+    height: 45px;
+    position: absolute;
+    top: 19px;
+    left: 10px;
+}
+#spain:after {
+    content: "(España, México)";
+    position: absolute;
+    top: 37px;
+    left: 65px;
+    font-size: 12px;
+    color: #eeeeee;
+}
+#sweden:before {
+    content: url(../images/sweden.svg);
+    width: 45px;
+    height: 45px;
+    margin-right: 10px;
+    position: absolute;
+    left: 10px;
+}
+#uk:before {
+    content: url(../images/uk.svg);
+    width: 45px;
+    height: 45px;
+    position: absolute;
+    top: 19px;
+    left: 10px;
+}
+#uk:after {
+    content: "(Australia, Canada, Ireland, New Zealand, UK, US)";
+    line-height: 1.4;
+    position: absolute;
+    top: 29px;
+    left: 65px;
+    font-size: 12px;
+    color: #eeeeee;
+}
+.blockleft .flags .countrylink#denmark,
+.blockleft .flags .countrylink#netherlands,
+.blockleft .flags .countrylink#uk,
+.blockleft .flags .countrylink#france, 
+.blockleft .flags .countrylink#finland,
+.blockleft .flags .countrylink#germany, 
+.blockleft .flags .countrylink#italy, 
+.blockleft .flags .countrylink#norway, 
+.blockleft .flags .countrylink#poland,
+.blockleft .flags .countrylink#sweden,  
+.blockleft .flags .countrylink#spain {
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    text-align: center;
+    margin-right: 5px;
+}
+#denmark:before,
+#denmark:after,
+#finland:before,
+#finland:after,
+#france:before,
+#france:after,
+#germany:before,
+#germany:after,
+#italy:before,
+#italy:after,
+#netherlands:before,
+#netherlands:after,
+#norway:before,
+#norway:after,
+#poland:before,
+#poland:after,
+#spain:before,
+#spain:after,
+#sweden:before,
+#sweden:after,
+#uk:before,
+#uk:after {
+    content: "";
+    width: 0;
+    height: 0;
+    margin-right: 0;
+}
+main {
+    width: 100%;
+    padding: 15px 10px;
+}
+main .countries {
+    width: 100%;
+    max-width: 96%;
+    margin: 30px auto 0;
+    background-color: #fff;
+    padding: 15px 20px;
+    background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
+    background-position: center;
+    background-size: cover;
+    box-shadow: 0 0 10px rgba(0,0,0,.2);
+}
+main .countries .countrylist {
+    display: flex;
+    height: 45px;
+    align-items: center;
+    padding-bottom: 15px;
+    position: relative;
+}
+main .countries .multiplecountry {
+    margin-bottom: 14px;
+}
+main .countries .countrylist img {
+    height: 45px;
+    padding-right: 15px;
+}
+main .countries .countrylist img.multiplenames {
+    height: 30px;
+}
+main .countries .countrylist h1 {
+    font-size: 18px;
+    color: #fff;
+    text-shadow: .5px .5px 2px rgba(0,0,0,.4);
+}
+main .countries .countrylist span {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,.8);
+}
+main .countries .colourdomains {
+    width: 100%;
+    display: grid;
+    grid-gap: 15px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    grid-template-areas: "first second"
+                         "first third"
+                         "first fourth";
+}
+main .countries .colourdomains .first {
+    grid-area: first;
+}
+main .countries .colourdomains .second {
+    grid-area: second;
+}
+main .countries .colourdomains .third {
+    grid-area: third;
+}
+main .countries .colourdomains .fourth {
+    grid-area: fourth;
+}
+main .countries .colourdomainstotalnew {
+    width: 100%;
+    background-color: #f5fafc;
+    background-image: linear-gradient(90deg, #f5fafc 0%, #f5fcfc 100%);
+    background-position: center;
+    background-size: cover;
+    padding: 10px 15px 15px;
+    display: flex;
+    flex-direction: column;
+    grid-gap: 5px;
+}
+main .countries .colourdomainstotalnew .listtotalnew {
+    width: 100%;
+    height: 100%;
+    padding: 15px 10px 5px;
+    display: grid;
+    grid-gap: 10px;
+    background-color: #ffffff;
+    border: 1px dotted #0093e9; 
+    /*grid-template-columns: repeat(2, 1fr);
+    justify-content: start;*/
+}
+main .countries .colourdomainstotalnew .listtotalnewempty {
+    width: 100%;
+    padding: 0;
+    display: grid;
+    grid-gap: 0;
+    background-color: transparent;
+    border: 0; 
+    grid-template-columns: repeat(2, 1fr);
+    justify-content: start;
+}
+main .countries .colourdomains h2 {
+    margin: -10px -15px 10px;
+    padding: 10px 0 10px 15px;
+    font-size: 15px;
+    color: #fff;
+    text-shadow: .5px .5px 2px rgba(0,0,0,.4);
+    background-image: linear-gradient(to right, #1CD8D2 0%, #93EDC7  51%, #1CD8D2  100%);  
+    background-size: 200% auto;
+}
+main .countries .colourdomains ul {
+    list-style-type: circle;
+}
+main .countries .colourdomains .listdomains li {
+    padding: 0 0 5px;
+    font-size: 15px;
+    text-transform: uppercase;
+    display: flex;
+    position: relative;
+}
+main .countries .colourdomains .listdomains li:before {
+    content: url(../images/bullet.png)" ";
+    white-space: pre;
+    font-weight: bold;
+    margin-top: -2px;
+    height: 15px;
+    width: auto;
+    cursor: initial !important;
+    text-decoration: none !important;
+}
+/*main .countries .colourdomains .listdomains li.liempty:before,
+main .countries .colourdomainsthree .listdomains li.liempty:before {
+    content: " ";
+}*/
+main .countries .colourdomains h3 {
+    font-size: 14px;
+    white-space: nowrap;
+    display: block;
+}
+main .countries .colourdomains h3:hover {
+    text-decoration: underline;
+}
+main .countries .colourdomains h3 a {
+    color: #000;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+}
+main .countries .colourdomains h3 a:hover {
+    text-decoration: underline;
+}
+main .countries .colourdomains h3 a:focus,
+main .countries .colourdomains h3 a:visited {
+    text-decoration: none;
+}
+main .countries .colourdomains span {
+    display: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #aaa;
+    text-transform: initial;
+    cursor: default;
+}
+
+main .countries .colourdomains span:before {
+    content: "  ";
+    white-space: pre;
+}
+main .countries .colourdomains .listdomains .infodomains {
+    width: 100%;
+    display: grid;
+    grid-template-rows: max-content max-content;
+    grid-gap: 0;
+    padding-right: 5px;
+    padding-left: 15px;
+    padding-bottom: 15px;
+}
+main .countries .colourdomains .listdomains .infodomains .infodomainscountry {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+main .countries .colourdomains .listdomains .infodomains .infodomainscountry em {
+    font-size: 13px;
+    color: #555;
+    text-transform: initial;
+}
+main .countries .colourdomains .listdomains .infodomains img {
+    width: 20px;
+    height: 20px;
+}
+/*main .countries .colourdomains .listdomains li.infodomains img.afterspan {
+    margin-top: -2px;
+}*/
+main .contentnamesdomains {
+    width: 100%;
+    max-width: 96%;
+    margin: 30px auto 20px;
+    padding: 0;
+    position: relative;
+}
+main .contentdomains {
+    width: 100%;
+    padding: 10px 30px 15px;
+    background-color: #f5fafc;
+    background-image: linear-gradient(90deg, #f5fafc 0%, #ffffff 100%);
+    background-position: center;
+    background-size: cover;
+    box-shadow: 0 0 10px rgba(0,0,0,.2);
+    position: relative;
+}
+main .contentdomains:before {
+    content: '';
+    position: absolute;
+    top: -1px; 
+    right: -1px;
+    bottom: -1px; 
+    left: -1px;
+    z-index: -1;
+    margin: -$border; 
+    border-radius: inherit; 
+    background-image: linear-gradient(90deg, #0093E9 0%, #80D0C7 100%);
+    -webkit-transition: background-color 0.5s ease;
+    background-position: center;
+    background-size: cover;
+}
+main .contentsummary {
+    padding: 5px 60px 45px;
+}
+main .content h2,
+main .contentnamesdomains h2 {
+    margin: 20px 0 10px;
+    font-size: 18px;
+}
+main .content h2.h2summary,
+main .contentnamesdomains h2.h2summary {
+    padding: 10px 0;
+}
+main .content h3,
+main .contentnamesdomains h3 {
+    font-size: 17px;
+    font-weight: bold;
+    padding-bottom: 5px;
+    text-transform: uppercase;
+}
+main .content h3.mains,
+main .contentnamesdomains h3.mains {
+    background-color: #fff;
+    padding-top: 5px;
+    padding-left: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border-top: 1px dotted #ccc;
+    border-bottom: 1px dotted #ccc;
+}
+main .content h4,
+main .contentnamesdomains h4 {
+    font-size: 16px;
+    font-weight: bold;
+    padding: 5px 0 10px;
+}
+main .content h4.mainssection:before,
+main .contentnamesdomains h4.mainssection:before {
+    content: "· ";
+    white-space: pre;
+}
+main .content .listdomains,
+main .contentnamesdomains .listdomains {
+    padding: 15px 0 20px 10px;
+    list-style: none;
+}
+main .content .summary,
+main .contentnamesdomains .summary  {
+    list-style-type: none;
+    padding-left: 15px;
+    padding-bottom: 10px;
+}
+main .content .summary li,
+main .contentnamesdomains .summary li {
+    padding: 0 0 6px;
+    font-size: 15px;
+    font-weight: 600;
+    position: relative;
+}
+main .content .summary li a ~ .captura,
+main .contentnamesdomains .summary li a ~ .captura {
+    position: absolute;
+    top: 0;
+    left: 45%;
+    transform: translate(-50%, -40%);
+    display: none;
+    border-radius: 5px;
+    z-index: 1000;
+    box-shadow: 0 0 3px rgba(0, 0, 0, .3);
+}
+main .content .summary li a:hover ~ .captura,
+main .contentnamesdomains .summary li a:hover ~ .captura {
+    display: block;
+    animation: fade_in_show 0.5s
+}
+main .content .summary li:last-child,
+main .contentnamesdomains .summary li:last-child {
+    padding: 0;
+}
+main .content .summary li span,
+main .contentnamesdomains .summary li span {
+    font-weight: 400;
+    font-size: 13.5px;
+    color: #999;
+}
+main .content .summary li .available,
+main .contentnamesdomains .summary li .available {
+    color: red;
+    font-weight: 500;
+}
+main .content .summary li .newlanding,
+main .contentnamesdomains .summary li .newlanding {
+    text-transform: uppercase;
+    animation-name: parpadeo;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@keyframes parpadeo {
+    0% { opacity: 1.0; }
+    50% { opacity: 0.0; }
+    100% { opacity: 1.0; }
+}
+main .content .summary li span strong,
+main .contentnamesdomains .summary li span strong {
+    font-weight: 600;
+}
+main .content .summary li span:before,
+main .contentnamesdomains .summary li span:before {
+    content: "   ";
+    white-space: pre;
+}
+main .content .summary li .available:before,
+main .contentnamesdomains .summary li .available:before {
+    content: "";
+    white-space: pre;
+}
+main .content .summary li a,
+main .contentnamesdomains .summary li a {
+    font-weight: 500;
+    color: #000;
+    text-decoration: none;
+}
+main .content .summary li a:hover,
+main .contentnamesdomains .summary li a:hover {
+    text-decoration: underline;
+}
+main .content .summarylinks,
+main .contentnamesdomains .summarylinks {
+    list-style-type: none;
+    padding: 0 0 10px 10px;
+}
+main .instrucctions {
+    padding-bottom: 5px;
+    border-bottom: 1px solid #ccc;
+}
+main .contentinst {
+    width: 100%;
+    max-width: 75%;
+    margin: 20px auto 40px;
+    padding: 0;
+}
+main .contentinst h2 {
+    margin: 0;
+    padding: 10px 0;
+    font-size: 18px;
+    text-transform: uppercase;
+}
+main .contentinst ol {
+    padding-left: 25px;
+}
+main .contentinst ol li {
+    padding: 10px 0;
+}
+main .contentinst ol li p {
+    line-height: 28px;
+}
+main .contentinst ol li ul {
+    list-style-type: none;
+}
+.blockright {
+    width: 100%;
+    background-color: #0093E9;
+    border-top: 2px solid #80D0C7;
+    box-shadow: 0 2px 10px 0 rgb(2 88 232 / 40%);
+    padding-bottom: 20px;
+}
+.blockright .contentalfor {
+    width: 100%;
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 15px 0 10px;
+    font-size: 15px;
+}
+.blockright .contentalfor ul {
+    width: 100%;
+    list-style-type: none;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 15px;
+}
+.blockright .contentalfor ul li {
+    padding-right: 25px;
+}
+.blockright .contentalfor ul li:last-child {
+    padding-right: 0;
+}
+.blockright .contentalfor ul li a {
+    font-size: 13px;
+    color: #fff;
+    text-decoration: none;
+}
+.blockright .contentalfor ul li a:hover {
+    text-decoration: underline;
+}
+.blockright .contentalfor ul li a.disabled {
+    color: #bbb;
+    cursor: initial;
+}
+.blockright .contentalfor ul li a.disabled:hover {
+    text-decoration: none;
+}
+.blockright .contentalfordom {
+    width: 100%;
+}
+.blockright .contentalfordom ul {
+    list-style-type: none;
+    padding-bottom: 25px;
+}
+.blockright .contentalfordom ul:last-child {
+    padding-bottom: 0;
+}
+.blockright .contentalfordom ul li {
+    list-style-type: none;
+    padding: 8px 20px 50px 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    margin-bottom: 2px;
+}
+.blockright .contentalfordom ul li:after {
+    content: "";
+    position: absolute;
+    height: 2px;
+    bottom: -2px;
+    left: 0px;
+    width: 100%;
+    background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 50%, #0093E9 100%);
+    z-index: 1;
+    cursor: initial;
+}
+.blockright .contentalfordom ul li:first-child {
+    margin-top: 2px;
+}
+.blockright .contentalfordom ul li:first-child:before {
+    content: "";
+    position: absolute;
+    height: 2px;
+    top: -2px;
+    left: 0px;
+    width: 100%;
+    background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 50%, #0093E9 100%);
+    z-index: 1;
+    cursor: initial;
+}
+.blockright .contentalfordom div {
+    display: flex;
+    padding: 10px 0 5px;
+}
+.blockright .contentalfordom div img {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+}
+.blockright .contentalfordom ul li span {
+    max-width: 100%;
+    position: absolute;
+    left: 50%;
+    bottom: 30px;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,.8);
+    font-size: 12px;
+    max-width: 360px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    cursor: default;
+}
+.blockright .contentalfordom ul li span.classad-main {
+    bottom: 10px;
+}
+.blockright .contentalfordom ul li span:before {
+    content: "";
+    white-space: pre;
+}
+.blockright .contentalfordom a {
+    position: relative;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffff;
+    text-decoration: none;
+}
+.blockright .contentalfordom a:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    display: inline-block;
+    height: 1em;
+    width: 100%;
+    border-bottom: 1px solid;
+    margin-top: 3px;
+    opacity: 0;
+    -webkit-transition: opacity 0.25s, -webkit-transform 0.25s;
+    transition: opacity 0.25s, transform 0.25s;
+    -webkit-transform: scale(0,1);
+    transform: scale(0,1);
+}
+.blockright .contentalfordom a:hover:after {
+    opacity: 1;
+    -webkit-transform: scale(1);
+    transform: scale(1);
+}
+@media only screen and (max-width: 1775px) {
+    main .content .summary li a ~ .captura,
+    main .contentnamesdomains .summary li a ~ .captura {
+        left: 55%;
+    }
+}
+@media only screen and (max-width: 1600px) {
+    main .content .summary li a ~ .captura,
+    main .contentnamesdomains .summary li a ~ .captura {
+        left: 65%;
+    }
+}
+@media only screen and (max-width: 1450px) {
+    main .content .summary li a ~ .captura,
+    main .contentnamesdomains .summary li a ~ .captura {
+        left: 70%;
+    }
+}
+@media only screen and (max-width: 1200px) {
+    main .content .summary li a ~ .captura,
+    main .contentnamesdomains .summary li a ~ .captura {
+        left: 75%;
+    }
+}
+@media only screen and (max-width: 1050px) {
+    .blockleft {
+        height: 100px;
+        padding: 10px;
+    }
+    .blockleft .flags {
+        display: grid;
+        grid-template-columns: repeat(6, auto);
+        grid-template-rows: repeat(2, auto);
+    }
+    .blockleft .flags .countrylink {
+        height: 40px;
+        padding: 0 10px;
+    }
+}
+@media only screen and (max-width: 1000px) {
+    main .content .summary li a ~ .captura,
+    main .contentnamesdomains .summary li a ~ .captura {
+        left: 80%;
+    }
+}
+@media only screen and (max-width: 900px) {
+    main .countries {
+        margin: 30px auto 20px;
+        padding: 15px 25px 20px;
+    }
+    main .countries .colourdomains {
+        display: grid;
+        grid-gap: 20px;
+        grid-template-columns: 100%;
+        grid-template-rows: repeat(3, auto);
+        grid-template-areas: "first"
+                             "second"
+                             "third"
+                             "fourth";
+    }
+    main .countries .colourdomainstotalnew .listtotalnew {
+        grid-gap: 0;
+        grid-template-columns: 100%;
+    }
+    main .countries .colourdomains h2 {
+        border-bottom: 0;
+    }
+}
+@media only screen and (max-width: 850px) {
+    main .content .summary li a:hover ~ .captura,
+    main .contentnamesdomains .summary li a:hover ~ .captura {
+        display: none !important;
+        animation: none
+    }
+}
+@media only screen and (max-width: 700px) {
+    main .countries .countrylist span {
+        display: none;
+    }
+    main .contentalfordom ul li span {
+        display: none;
+    }
+}
+@media only screen and (max-width: 550px) {
+    .blockleft {
+        height: 140px;
+    }
+    .blockleft .flags {
+        grid-template-columns: repeat(4, auto);
+        grid-template-rows: repeat(3, auto);
+    }
+    .summary li span {
+        display: none;
+    }
+    .blockright .contentalfor ul {
+        padding-bottom: 10px;
+    }
+    .blockright .contentalfor ul li {
+        padding-right: 15px;
+    }
+}
+@media only screen and (max-width: 500px) {
+    .blockleft {
+        height: 180px;
+    }
+    .blockleft .flags {
+        grid-template-columns: repeat(3, auto);
+        grid-template-rows: repeat(4, auto);
+    }
+}
+@media only screen and (max-width: 430px) {
+    .blockleft {
+        height: 260px;
+    }
+    .blockleft .flags {
+        grid-template-columns: repeat(2, auto);
+        grid-template-rows: repeat(6, auto);
+    }
+}
+@media only screen and (max-width: 380px) {
+    .blockright .contentalfor {
+        font-size: 15px;
+    }
+    .blockright .contentalfor ul li {
+        padding-right: 12px;
+    }
+}
+@media only screen and (max-width: 330px) {
+    .blockright .contentalfor {
+        font-size: 14px;
+    }
+    .blockright .contentalfor ul li {
+        padding-right: 10px;
+    }
+}
