@@ -5,7 +5,7 @@
 session_start();
 
 // ── CONFIGURACIÓN ──
-define('ADMIN_PASSWORD', '@llysas888');
+define('ADMIN_PASSWORD', $_SERVER['ADMIN_PASSWORD']);
 
 // ── PROCESAR LOGIN ──
 if (isset($_POST['admin_password'])) {
