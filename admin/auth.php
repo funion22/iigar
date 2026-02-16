@@ -1,17 +1,26 @@
 <?php
 // ============================================
-// AUTH - Protección del Admin Panel
+// AUTH - Debug version
 // ============================================
-session_set_cookie_params(['path' => '/', 'httponly' => true, 'samesite' => 'Lax']);
-session_start();
 
-// ── CONFIGURACIÓN ──
-define('ADMIN_PASSWORD', $_SERVER['ADMIN_PASSWORD'] ?? '');
+// Temporary debug - remove after fixing
+if (isset($_GET['debug_auth'])) {
+    header('Content-Type: text/plain');
+    echo "ADMIN_PASSWORD set: " . (isset($_SERVER['ADMIN_PASSWORD']) ? 'YES' : 'NO') . "\n";
+    echo "Cookies received: " . print_r($_COOKIE, true) . "\n";
+    echo "REQUEST_URI: " . $_SERVER['REQUEST_URI'] . "\n";
+    exit;
+}
+
+$adminPassword = $_SERVER['ADMIN_PASSWORD'] ?? '';
+$cookieName = 'pagifier_auth';
+$cookieToken = 'pgf_' . hash('sha256', 'pagifier_secret_key_2024');
 
 // ── PROCESAR LOGIN ──
 if (isset($_POST['admin_password'])) {
-    if (ADMIN_PASSWORD !== '' && $_POST['admin_password'] === ADMIN_PASSWORD) {
-        $_SESSION['admin_logged'] = true;
+    if ($adminPassword !== '' && $_POST['admin_password'] === $adminPassword) {
+        setcookie($cookieName, $cookieToken, time() + 86400, '/');
+        $_COOKIE[$cookieName] = $cookieToken;
     } else {
         $login_error = true;
     }
@@ -19,13 +28,15 @@ if (isset($_POST['admin_password'])) {
 
 // ── PROCESAR LOGOUT ──
 if (isset($_GET['logout'])) {
-    session_destroy();
+    setcookie($cookieName, '', time() - 3600, '/');
     header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
     exit;
 }
 
 // ── VERIFICAR ACCESO ──
-if (empty($_SESSION['admin_logged'])) {
+$isLogged = isset($_COOKIE[$cookieName]) && $_COOKIE[$cookieName] === $cookieToken;
+
+if (!$isLogged) {
     ?>
     <!DOCTYPE html>
     <html lang="es">
