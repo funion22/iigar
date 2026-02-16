@@ -365,7 +365,7 @@ main .countries .colourdomainstotalnew {
 main .countries .colourdomainstotalnew .listtotalnew {
     width: 100%;
     height: 100%;
-    padding: 15px 10px 5px;
+    padding: 10px 10px 5px;
     display: grid;
     grid-gap: 10px;
     background-color: #ffffff;
@@ -396,7 +396,7 @@ main .countries .colourdomains ul {
     list-style-type: circle;
 }
 main .countries .colourdomains .listdomains li {
-    padding: 0 0 5px;
+    padding: 5px 0 10px;
     font-size: 15px;
     text-transform: uppercase;
     display: flex;
@@ -455,6 +455,7 @@ main .countries .colourdomains .listdomains .infodomains {
     display: grid;
     grid-template-rows: max-content max-content;
     grid-gap: 0;
+    margin-top: -7px;
     padding-right: 5px;
     padding-left: 15px;
     padding-bottom: 15px;
