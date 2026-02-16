@@ -11,8 +11,7 @@ define('ADMIN_PASSWORD', $_SERVER['ADMIN_PASSWORD'] ?? '');
 if (isset($_POST['admin_password'])) {
     if (ADMIN_PASSWORD !== '' && $_POST['admin_password'] === ADMIN_PASSWORD) {
         $_SESSION['admin_logged'] = true;
-        header('Location: ' . $_SERVER['PHP_SELF']);
-        exit;
+        // No redirect — la sesión ya está activa, la página continúa
     } else {
         $login_error = true;
     }
@@ -21,7 +20,7 @@ if (isset($_POST['admin_password'])) {
 // ── PROCESAR LOGOUT ──
 if (isset($_GET['logout'])) {
     session_destroy();
-    header('Location: login.php');
+    header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
     exit;
 }
 
