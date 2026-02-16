@@ -43,24 +43,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($id > 0) {
-            // Solo hacer hueco si otro registro ya tiene ese sort_order
-            $conflict = $pdo->prepare("SELECT COUNT(*) FROM landings WHERE sort_order = ? AND id != ?");
-            $conflict->execute([$sort_order, $id]);
-            if ($conflict->fetchColumn() > 0) {
-                $pdo->prepare("UPDATE landings SET sort_order = sort_order + 1 WHERE sort_order >= ? AND id != ?")
-                    ->execute([$sort_order, $id]);
-            }
             $stmt = $pdo->prepare("UPDATE landings SET parent_section=?, section_title=?, url_path=?, data_country=?, data_color=?, sort_order=? WHERE id=?");
             $stmt->execute([$parent_section, $section_title, $url_path, $data_country, $data_color, $sort_order, $id]);
             $msg = 'Landing actualizada correctamente.';
         } else {
-            // Solo hacer hueco si ya existe ese sort_order
-            $conflict = $pdo->prepare("SELECT COUNT(*) FROM landings WHERE sort_order = ?");
-            $conflict->execute([$sort_order]);
-            if ($conflict->fetchColumn() > 0) {
-                $pdo->prepare("UPDATE landings SET sort_order = sort_order + 1 WHERE sort_order >= ?")
-                    ->execute([$sort_order]);
-            }
             $stmt = $pdo->prepare("INSERT INTO landings (parent_section, section_title, url_path, data_country, data_color, sort_order) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->execute([$parent_section, $section_title, $url_path, $data_country, $data_color, $sort_order]);
             $msg = 'Landing creada correctamente.';
@@ -98,7 +84,7 @@ if ($filterSearch) {
 
 $whereSQL = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
-$stmt = $pdo->prepare("SELECT * FROM landings $whereSQL ORDER BY parent_section, section_title, sort_order");
+$stmt = $pdo->prepare("SELECT * FROM landings $whereSQL ORDER BY sort_order");
 $stmt->execute($params);
 $landings = $stmt->fetchAll();
 
