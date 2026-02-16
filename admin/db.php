@@ -1,15 +1,9 @@
 <?php
-
-$host = 'localhost';
-$dbname = 'pagifier';
-$user = 'root';
-$pass = ''; // En XAMPP la contraseña por defecto es vacía
-
 try {
     $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-        $user,
-        $pass,
+        "mysql:host=" . $_SERVER['DB_HOST'] . ";dbname=" . $_SERVER['DB_DATABASE'] . ";charset=utf8mb4",
+        $_SERVER['DB_USERNAME'],
+        $_SERVER['DB_PASSWORD'],
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
@@ -17,6 +11,5 @@ try {
     );
 } catch (PDOException $e) {
     die("<h1 style='color:red;font-family:Arial'>Error de conexión a la base de datos</h1>"
-        . "<p style='font-family:Arial'>" . $e->getMessage() . "</p>"
-        . "<p style='font-family:Arial'>Asegúrate de que MySQL está iniciado en XAMPP y que la base de datos 'pagifier' existe.</p>");
+        . "<p style='font-family:Arial'>" . $e->getMessage() . "</p>");
 }
