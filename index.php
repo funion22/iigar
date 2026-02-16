@@ -69,6 +69,15 @@ $brandlessColorMap = [
     'se' => 'fiirtingseshows',
 ];
 
+// Mapa de slug a código ISO para banderas SVG
+$flagCodes = [
+    'czech' => 'cz', 'denmark' => 'dk', 'netherlands' => 'nl',
+    'uk' => 'gb', 'finland' => 'fi', 'france' => 'fr',
+    'germany' => 'de', 'greece' => 'gr', 'italy' => 'it',
+    'norway' => 'no', 'poland' => 'pl', 'portuguese' => 'pt',
+    'spain' => 'es', 'sweden' => 'se'
+];
+
 // Para el índice alfabético: todos los dominios NO brandless, ordenados alfabéticamente
 $allDomainsAlpha = $pdo->query("
     SELECT d.*, c.button_name, c.sub_countries as country_sub_countries
@@ -149,13 +158,17 @@ $categoryLabels = [
             </div>
             <div class="contentcountries">
                 <!-- PAISES -->
-                <?php foreach ($countries as $c): 
+                <?php foreach ($countries as $c):
                     $slug = $c['slug'];
                     $hasSubCountries = !empty($c['sub_countries']);
+                    $flagCode = $flagCodes[$slug] ?? '';
+                    $flagSrc = $flagCode
+                        ? 'https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/flags/4x3/' . $flagCode . '.svg'
+                        : 'images/' . htmlspecialchars($c['flag_image']);
                 ?>
                 <div class="countries" id="<?= $slug ?>1" style="display:none;">
                     <div class="countrylist<?= $hasSubCountries ? ' multiplecountry' : '' ?>">
-                        <img <?= $hasSubCountries ? 'class="multiplenames" ' : '' ?>src="images/<?= htmlspecialchars($c['flag_image']) ?>" alt="">
+                        <img <?= $hasSubCountries ? 'class="multiplenames" ' : '' ?>src="<?= $flagSrc ?>" alt="">
                         <h1><?= htmlspecialchars($c['title']) ?></h1>
                         <?php if ($hasSubCountries): ?>
                         <span>(<?= htmlspecialchars($c['sub_countries']) ?>)</span>
@@ -175,10 +188,10 @@ $categoryLabels = [
                                         <img src="images/<?= $d['template'] ?>.png" alt="">
                                         <?php endif; ?>
                                     <?php endif; ?></li>
-                                    <?php 
+                                    <?php
                                     // Mostrar sub-países si el dominio los tiene O si el país los tiene
                                     $subInfo = $d['sub_countries'] ?: ($hasSubCountries ? $c['sub_countries'] : '');
-                                    if ($subInfo && $catKey !== 'brandless'): 
+                                    if ($subInfo && $catKey !== 'brandless'):
                                     ?>
                                     <li class="infodomains">
                                         <div class="infodomainscountry">
@@ -200,12 +213,12 @@ $categoryLabels = [
                 <!-- Dirección dominios -->
                 <div class="contentnamesdomains" id="content-domains" style="display: none">
                     <!-- Dominios brandless -->
-                    <?php foreach ($brandlessByLang as $langCode => $sections): 
+                    <?php foreach ($brandlessByLang as $langCode => $sections):
                         $colorClass = $brandlessColorMap[$langCode] ?? 'fiirtingenshows';
                     ?>
                     <div>
                         <div class="contentdomains showcontentbrandless" id="<?= $colorClass ?>content" style="display: none">
-                            <?php 
+                            <?php
                             $currentH3 = '';
                             foreach ($sections as $sectionTitle => $items):
                             ?>
@@ -263,9 +276,9 @@ $categoryLabels = [
                                 <?php foreach ($items as $l): ?>
                                 <li class="ci" data-country="<?= htmlspecialchars($l['data_country']) ?>" data-color="<?= htmlspecialchars($l['data_color']) ?>">
                                     <a class='replaceMe sTxturl1' href="https://domainName<?= htmlspecialchars($l['url_path']) ?>" target="_blank" data-to-be-replaced='domainName'>https://domainName<?= htmlspecialchars($l['url_path']) ?></a>
-                                    <?php 
+                                    <?php
                                     // Generar enlaces con clases compatibles (sTxtcpm, sTxtcpl, etc) y spans con formato sNresetN
-                                    foreach ($campaignTypes as $i => $ct): 
+                                    foreach ($campaignTypes as $i => $ct):
                                         $num = $i + 1;
                                     ?>
                                     <a class="sTxt<?= htmlspecialchars($ct['code']) ?>" data-attribute="selectedOption" style="display: none;"><span class="s<?= $num ?>reset<?= $num ?>"></span></a>
@@ -294,11 +307,11 @@ $categoryLabels = [
                 </ul>
             </div>
             <div class="contentalfordom">
-                <?php foreach ($allLetters as $letter): 
+                <?php foreach ($allLetters as $letter):
                     if (!isset($domainsByLetter[$letter])) continue;
                 ?>
                 <ul id="<?= $letter ?>">
-                    <?php foreach ($domainsByLetter[$letter] as $d): 
+                    <?php foreach ($domainsByLetter[$letter] as $d):
                         $countryLabel = $d['sub_countries'] ?: ($d['country_sub_countries'] ?: $d['button_name']);
                     ?>
                     <li class='replacer showcontent' data-replacer='<?= htmlspecialchars($d['domain']) ?>'>
