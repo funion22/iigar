@@ -5,11 +5,11 @@
 session_start();
 
 // ── CONFIGURACIÓN ──
-define('ADMIN_PASSWORD', $_SERVER['ADMIN_PASSWORD']);
+define('ADMIN_PASSWORD', $_SERVER['ADMIN_PASSWORD'] ?? '');
 
 // ── PROCESAR LOGIN ──
 if (isset($_POST['admin_password'])) {
-    if ($_POST['admin_password'] === ADMIN_PASSWORD) {
+    if (ADMIN_PASSWORD !== '' && $_POST['admin_password'] === ADMIN_PASSWORD) {
         $_SESSION['admin_logged'] = true;
         header('Location: ' . $_SERVER['PHP_SELF']);
         exit;
@@ -27,7 +27,6 @@ if (isset($_GET['logout'])) {
 
 // ── VERIFICAR ACCESO ──
 if (empty($_SESSION['admin_logged'])) {
-    // Mostrar formulario de login
     ?>
     <!DOCTYPE html>
     <html lang="es">
