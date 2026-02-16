@@ -2,6 +2,7 @@
 // ============================================
 // AUTH - Protección del Admin Panel
 // ============================================
+session_set_cookie_params(['path' => '/', 'httponly' => true, 'samesite' => 'Lax']);
 session_start();
 
 // ── CONFIGURACIÓN ──
@@ -11,7 +12,6 @@ define('ADMIN_PASSWORD', $_SERVER['ADMIN_PASSWORD'] ?? '');
 if (isset($_POST['admin_password'])) {
     if (ADMIN_PASSWORD !== '' && $_POST['admin_password'] === ADMIN_PASSWORD) {
         $_SESSION['admin_logged'] = true;
-        // No redirect — la sesión ya está activa, la página continúa
     } else {
         $login_error = true;
     }
