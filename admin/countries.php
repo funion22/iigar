@@ -6,18 +6,10 @@ $msg = '';
 $msgType = '';
 $editing = null;
 
-// Mapa de slug a código ISO para banderas SVG
-$flagCodes = [
-    'czech' => 'cz', 'denmark' => 'dk', 'netherlands' => 'nl',
-    'uk' => 'gb', 'finland' => 'fi', 'france' => 'fr',
-    'germany' => 'de', 'greece' => 'gr', 'italy' => 'it',
-    'norway' => 'no', 'poland' => 'pl', 'portuguese' => 'pt',
-    'spain' => 'es', 'sweden' => 'se'
-];
-
 // ── ELIMINAR ──
 if (isset($_GET['delete'])) {
     $id = (int)$_GET['delete'];
+    // Comprobar si tiene dominios
     $count = $pdo->prepare("SELECT COUNT(*) FROM domains WHERE country_id = ?");
     $count->execute([$id]);
     if ($count->fetchColumn() > 0) {
@@ -45,16 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $slug = trim($_POST['slug']);
     $button_name = trim($_POST['button_name']);
     $title = trim($_POST['title']);
+    $flag_image = trim($_POST['flag_image']);
     $sub_countries = trim($_POST['sub_countries']);
     $sort_order = (int)$_POST['sort_order'];
-    // Mantener el flag_image existente al editar, vacío al crear
-    $flag_image = '';
-    if ($id > 0) {
-        $old = $pdo->prepare("SELECT flag_image FROM countries WHERE id = ?");
-        $old->execute([$id]);
-        $flag_image = $old->fetchColumn() ?: '';
-    }
 
+    // Validar
     if (empty($slug) || empty($button_name) || empty($title)) {
         $msg = 'Los campos Slug, Nombre del botón y Título son obligatorios.';
         $msgType = 'error';
@@ -66,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->prepare("UPDATE countries SET sort_order = sort_order + 1 WHERE sort_order >= ? AND id != ?")
                     ->execute([$sort_order, $id]);
             }
+            // Actualizar
             $stmt = $pdo->prepare("UPDATE countries SET slug=?, button_name=?, title=?, flag_image=?, sub_countries=?, sort_order=? WHERE id=?");
             $stmt->execute([$slug, $button_name, $title, $flag_image, $sub_countries, $sort_order, $id]);
             $msg = 'País actualizado correctamente.';
@@ -76,12 +64,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->prepare("UPDATE countries SET sort_order = sort_order + 1 WHERE sort_order >= ?")
                     ->execute([$sort_order]);
             }
+            // Crear
             $stmt = $pdo->prepare("INSERT INTO countries (slug, button_name, title, flag_image, sub_countries, sort_order) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->execute([$slug, $button_name, $title, $flag_image, $sub_countries, $sort_order]);
             $msg = 'País creado correctamente.';
         }
         $msgType = 'success';
-        $editing = null;
+        $editing = null; // Limpiar formulario
     }
 }
 
@@ -94,6 +83,7 @@ $countries = $pdo->query("
     ORDER BY c.sort_order
 ")->fetchAll();
 
+// Obtener el siguiente sort_order
 $nextOrder = $pdo->query("SELECT COALESCE(MAX(sort_order), 0) + 1 FROM countries")->fetchColumn();
 ?>
 <!DOCTYPE html>
@@ -152,23 +142,30 @@ $nextOrder = $pdo->query("SELECT COALESCE(MAX(sort_order), 0) + 1 FROM countries
 
                     <div class="form-row">
                         <div class="form-group">
+                            <label>Imagen de bandera (nombre del archivo en /images/)</label>
+                            <input type="text" name="flag_image" placeholder="ej: denmark.png"
+                                   value="<?= htmlspecialchars($editing['flag_image'] ?? '') ?>">
+                        </div>
+                        <div class="form-group">
                             <label>Sub-países (separados por coma, dejar vacío si es país único)</label>
                             <input type="text" name="sub_countries" placeholder="ej: Nederland, België"
                                    value="<?= htmlspecialchars($editing['sub_countries'] ?? '') ?>">
                         </div>
+                    </div>
+
+                    <div class="form-row">
                         <div class="form-group">
                             <label>Orden</label>
                             <input type="number" name="sort_order" value="<?= $editing['sort_order'] ?? $nextOrder ?>">
                         </div>
-                    </div>
-
-                    <div class="form-group" style="display:flex; gap:10px;">
-                        <button type="submit" class="btn btn-primary">
-                            <?= $editing ? 'Guardar cambios' : 'Añadir país' ?>
-                        </button>
-                        <?php if ($editing): ?>
-                            <a href="countries.php" class="btn btn-danger">Cancelar</a>
-                        <?php endif; ?>
+                        <div class="form-group" style="display:flex; align-items:flex-end; gap:10px;">
+                            <button type="submit" class="btn btn-primary">
+                                <?= $editing ? 'Guardar cambios' : 'Añadir país' ?>
+                            </button>
+                            <?php if ($editing): ?>
+                                <a href="countries.php" class="btn btn-danger">Cancelar</a>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -192,17 +189,12 @@ $nextOrder = $pdo->query("SELECT COALESCE(MAX(sort_order), 0) + 1 FROM countries
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($countries as $c):
-                        $flagCode = $flagCodes[$c['slug']] ?? '';
-                        $flagSrc = $flagCode
-                            ? 'https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/flags/4x3/' . $flagCode . '.svg'
-                            : ($c['flag_image'] ? '../images/' . htmlspecialchars($c['flag_image']) : '');
-                    ?>
+                    <?php foreach ($countries as $c): ?>
                     <tr>
                         <td><?= $c['sort_order'] ?></td>
                         <td>
-                            <?php if ($flagSrc): ?>
-                                <img src="<?= $flagSrc ?>" alt="" style="height:20px; vertical-align:middle;">
+                            <?php if ($c['flag_image']): ?>
+                                <img src="../images/<?= htmlspecialchars($c['flag_image']) ?>" alt="" style="height:20px; vertical-align:middle;">
                             <?php endif; ?>
                         </td>
                         <td><code><?= htmlspecialchars($c['slug']) ?></code></td>
