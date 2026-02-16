@@ -1,16 +1,4 @@
 <?php
-// ============================================
-// AUTH - Debug version
-// ============================================
-
-// Temporary debug - remove after fixing
-if (isset($_GET['debug_auth'])) {
-    header('Content-Type: text/plain');
-    echo "ADMIN_PASSWORD set: " . (isset($_SERVER['ADMIN_PASSWORD']) ? 'YES' : 'NO') . "\n";
-    echo "Cookies received: " . print_r($_COOKIE, true) . "\n";
-    echo "REQUEST_URI: " . $_SERVER['REQUEST_URI'] . "\n";
-    exit;
-}
 
 $adminPassword = $_SERVER['ADMIN_PASSWORD'] ?? '';
 $cookieName = 'pagifier_auth';
