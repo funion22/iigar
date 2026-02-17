@@ -156,6 +156,36 @@ $categoryLabels = [
                     <p class="iframeenglish">&nbsp; If you want to show/hide all available landings press <span class="openiframe">here</span></p>
                 </div>
                 <iframe src="_old/index.html" name="all_landings" id="iframe" style="display: none; resize: vertical;overflow: auto"></iframe>
+                <script>
+                    (function() {
+                        const iframe = document.getElementById('iframe');
+                        if (!iframe) return;
+                        const STORAGE_KEY = 'pagifier_iframe_height';
+                        let isUserResizing = false;
+
+                        // Restaurar altura guardada
+                        const saved = sessionStorage.getItem(STORAGE_KEY);
+                        if (saved) iframe.style.height = saved;
+
+                        // Detectar resize manual del usuario
+                        iframe.addEventListener('mousedown', () => { isUserResizing = true; });
+                        document.addEventListener('mouseup', () => {
+                            if (isUserResizing) {
+                                sessionStorage.setItem(STORAGE_KEY, iframe.offsetHeight + 'px');
+                                isUserResizing = false;
+                            }
+                        });
+
+                        // Restaurar cuando algo resetee la altura
+                        const observer = new MutationObserver(() => {
+                            const saved = sessionStorage.getItem(STORAGE_KEY);
+                            if (saved && !isUserResizing) {
+                                iframe.style.height = saved;
+                            }
+                        });
+                        observer.observe(iframe, { attributes: true, attributeFilter: ['style'] });
+                    })();
+                </script>
             </div>
             <div class="contentcountries">
                 <!-- PAISES -->
