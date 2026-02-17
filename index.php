@@ -1,8 +1,4 @@
 <?php
-// ============================================
-// PAGIFIER - Index Dinámico con Campaign Types
-// VERSIÓN COMPATIBLE con main.js original
-// ============================================
 require_once 'admin/db.php';
 
 // ── CARGAR DATOS ──
@@ -105,6 +101,12 @@ $categoryLabels = [
     'mainstream' => 'Mainstream',
     'brandless' => 'Brandless',
 ];
+
+// CACHE BUSTER - versiones de archivos estáticos
+$vCSS = @filemtime('css/styles.css') ?: time();
+$vClickyCSS = @filemtime('css/clicky-menus.css') ?: time();
+$vClickyJS = @filemtime('js/clicky-menus.js') ?: time();
+$vMainJS = @filemtime('js/main.js') ?: time();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -114,9 +116,9 @@ $categoryLabels = [
     <title>Landings Pagifier</title>
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="js/clicky-menus.js"></script>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/clicky-menus.css" />
+    <script src="js/clicky-menus.js?v=<?= $vClickyJS ?>"></script>
+    <link rel="stylesheet" href="css/styles.css?v=<?= $vCSS ?>">
+    <link rel="stylesheet" href="css/clicky-menus.css?v=<?= $vClickyCSS ?>" />
     <link rel="icon" href="images/favicon.ico" type="image/x-icon">
     <style>
         ul > li.namepopup {
@@ -378,6 +380,9 @@ $categoryLabels = [
     </div>
 
     <script>
+            // CACHE BUSTER - versión de main.js disponible para carga dinámica
+            const JS_MAIN_VERSION = '<?= $vMainJS ?>';
+
             document.addEventListener("DOMContentLoaded", () => {
               document.querySelectorAll('[data-attribute="showcolourcontent"]').forEach(el => {
                 const text = el.textContent.trim();
@@ -477,21 +482,24 @@ $categoryLabels = [
                 });
             }
 
+            // CACHE BUSTER - añade ?v= al cargar main.js dinámicamente
             function cargarScriptSiNoExiste(src) {
-                if (!document.querySelector(`script[src="${src}"]`)) {
+                const versionedSrc = src + '?v=' + JS_MAIN_VERSION;
+                if (!document.querySelector(`script[src="${versionedSrc}"]`)) {
                     const script = document.createElement("script");
-                    script.src = src;
+                    script.src = versionedSrc;
                     document.querySelector('.script').appendChild(script);
                 }
             }
 
+            // CACHE BUSTER - añade ?v= al cargar main.js
             document.querySelector('.hideIframes').addEventListener( "click", function() {
                 document.querySelector('.iframeSelection').style.display = "none";
                 document.querySelector('.label').style.display = "none";
                 document.querySelectorAll('ul.summary > li').forEach(el => el.classList.add("checkedbutton"));
                 document.getElementById("loading-overlay").style.display = "flex";
                 var newScript = document.createElement("script");
-                newScript.src = "js/main.js";
+                newScript.src = "js/main.js?v=" + JS_MAIN_VERSION;
                 document.querySelector('.script').appendChild(newScript);
                 getNoIframes();
             });
