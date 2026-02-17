@@ -163,33 +163,44 @@ $vMainJS = @filemtime('js/main.js') ?: time();
                         const iframe = document.getElementById('iframe');
                         if (!iframe) return;
                         const STORAGE_KEY = 'pagifier_iframe_height';
-                        let isUserResizing = false;
+                        const MIN_HEIGHT = 300;
+                        let resizeStartHeight = 0;
+                        let isResizing = false;
 
-                        // Restaurar altura guardada al cargar
+                        // Restaurar altura guardada
                         const saved = sessionStorage.getItem(STORAGE_KEY);
-                        if (saved) iframe.style.height = saved;
+                        if (saved) {
+                            const h = parseInt(saved);
+                            if (h >= MIN_HEIGHT) {
+                                iframe.style.height = saved;
+                            } else {
+                                sessionStorage.removeItem(STORAGE_KEY);
+                            }
+                        }
 
-                        // Guardar al resize manual
-                        iframe.addEventListener('mousedown', () => { isUserResizing = true; });
-                        document.addEventListener('mouseup', () => {
-                            if (isUserResizing) {
-                                sessionStorage.setItem(STORAGE_KEY, iframe.offsetHeight + 'px');
-                                isUserResizing = false;
+                        // Solo detectar drag en el resize handle (esquina inferior-derecha ~20px)
+                        iframe.addEventListener('pointerdown', (e) => {
+                            const rect = iframe.getBoundingClientRect();
+                            const nearBottom = (rect.bottom - e.clientY) < 20;
+                            const nearRight = (rect.right - e.clientX) < 20;
+                            if (nearBottom && nearRight) {
+                                isResizing = true;
+                                resizeStartHeight = iframe.offsetHeight;
                             }
                         });
 
-                        // Restaurar altura al click en dominios
-                        document.addEventListener('click', (e) => {
-                            const link = e.target.closest('[data-attribute="showcolourcontent"], .replacer, .showcontent, .countrylink');
-                            if (link) {
-                                const saved = sessionStorage.getItem(STORAGE_KEY);
-                                if (saved) {
-                                    setTimeout(() => { iframe.style.height = saved; }, 50);
+                        document.addEventListener('pointerup', () => {
+                            if (isResizing) {
+                                const newHeight = iframe.offsetHeight;
+                                if (newHeight !== resizeStartHeight && newHeight >= MIN_HEIGHT) {
+                                    sessionStorage.setItem(STORAGE_KEY, newHeight + 'px');
                                 }
+                                isResizing = false;
+                                resizeStartHeight = 0;
                             }
                         });
 
-                        // Toggle iframe + resetear altura
+                        // Toggle iframe
                         document.querySelectorAll('.openiframe').forEach(btn => {
                             btn.addEventListener('click', () => {
                                 if (iframe.style.display === 'none') {
