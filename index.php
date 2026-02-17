@@ -163,11 +163,11 @@ $categoryLabels = [
                         const STORAGE_KEY = 'pagifier_iframe_height';
                         let isUserResizing = false;
 
-                        // Restaurar altura guardada
+                        // Restaurar altura guardada al cargar
                         const saved = sessionStorage.getItem(STORAGE_KEY);
                         if (saved) iframe.style.height = saved;
 
-                        // Detectar resize manual del usuario
+                        // Guardar al resize manual
                         iframe.addEventListener('mousedown', () => { isUserResizing = true; });
                         document.addEventListener('mouseup', () => {
                             if (isUserResizing) {
@@ -176,14 +176,29 @@ $categoryLabels = [
                             }
                         });
 
-                        // Restaurar cuando algo resetee la altura
-                        const observer = new MutationObserver(() => {
-                            const saved = sessionStorage.getItem(STORAGE_KEY);
-                            if (saved && !isUserResizing) {
-                                iframe.style.height = saved;
+                        // Restaurar altura al click en dominios
+                        document.addEventListener('click', (e) => {
+                            const link = e.target.closest('[data-attribute="showcolourcontent"], .replacer, .showcontent, .countrylink');
+                            if (link) {
+                                const saved = sessionStorage.getItem(STORAGE_KEY);
+                                if (saved) {
+                                    setTimeout(() => { iframe.style.height = saved; }, 50);
+                                }
                             }
                         });
-                        observer.observe(iframe, { attributes: true, attributeFilter: ['style'] });
+
+                        // Toggle iframe + resetear altura
+                        document.querySelectorAll('.openiframe').forEach(btn => {
+                            btn.addEventListener('click', () => {
+                                if (iframe.style.display === 'none') {
+                                    iframe.style.display = 'block';
+                                } else {
+                                    sessionStorage.removeItem(STORAGE_KEY);
+                                    iframe.style.height = '';
+                                    iframe.style.display = 'none';
+                                }
+                            });
+                        });
                     })();
                 </script>
             </div>

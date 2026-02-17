@@ -77,18 +77,6 @@ function insertWBR(str) {
   return str.replace(/([\/=&\-_?])/g, '$1<wbr>');
 }
 
-var openiframe = document.querySelectorAll(".openiframe");
-const iframe = document.getElementById("iframe");
-for(var i = 0; i < openiframe.length; i++) {
-  openiframe[i].addEventListener('click', function()  {
-    if (iframe.style.display == "none") {
-      iframe.style.display = "block";
-    } else {
-      iframe.style.display = "none";
-    }
-  });
-}
-
 const replacers = document.querySelectorAll('.replacer');
 const replaceUs = document.querySelectorAll('.replaceMe');
 
