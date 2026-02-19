@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data_country = trim($_POST['data_country']);
     $data_color = trim($_POST['data_color']);
     $sort_order = (int)$_POST['sort_order'];
+    $is_new = isset($_POST['is_new']) ? 1 : 0;
 
     if (empty($url_path)) {
         $msg = 'La URL es obligatoria.';
@@ -43,12 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($id > 0) {
-            $stmt = $pdo->prepare("UPDATE landings SET parent_section=?, section_title=?, url_path=?, data_country=?, data_color=?, sort_order=? WHERE id=?");
-            $stmt->execute([$parent_section, $section_title, $url_path, $data_country, $data_color, $sort_order, $id]);
+            $stmt = $pdo->prepare("UPDATE landings SET parent_section=?, section_title=?, url_path=?, data_country=?, data_color=?, sort_order=?, is_new=? WHERE id=?");
+            $stmt->execute([$parent_section, $section_title, $url_path, $data_country, $data_color, $sort_order, $is_new, $id]);
             $msg = 'Landing actualizada correctamente.';
         } else {
-            $stmt = $pdo->prepare("INSERT INTO landings (parent_section, section_title, url_path, data_country, data_color, sort_order) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$parent_section, $section_title, $url_path, $data_country, $data_color, $sort_order]);
+            $stmt = $pdo->prepare("INSERT INTO landings (parent_section, section_title, url_path, data_country, data_color, sort_order, is_new) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$parent_section, $section_title, $url_path, $data_country, $data_color, $sort_order, $is_new]);
             $msg = 'Landing creada correctamente.';
         }
         $msgType = 'success';
@@ -198,6 +199,13 @@ $colorOptions = ['pink', 'pink-t3', 'red', 'orange', 'mature-pink', 'mature-oran
                             <input type="number" name="sort_order" value="<?= $editing['sort_order'] ?? $nextOrder ?>">
                         </div>
                         <div class="form-group" style="display:flex; align-items:flex-end; gap:10px;">
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none; padding-bottom:8px;">
+                                <input type="checkbox" name="is_new" value="1" <?= ($editing['is_new'] ?? 0) ? 'checked' : '' ?>
+                                       style="width:18px; height:18px; accent-color:#ff4444;">
+                                <span style="color:#ff4444; font-weight:600;">Marcar como NEW</span>
+                            </label>
+                        </div>
+                        <div class="form-group" style="display:flex; align-items:flex-end; gap:10px;">
                             <button type="submit" class="btn btn-primary">
                                 <?= $editing ? 'Guardar cambios' : 'Añadir landing' ?>
                             </button>
@@ -251,12 +259,13 @@ $colorOptions = ['pink', 'pink-t3', 'red', 'orange', 'mature-pink', 'mature-oran
                         <th>País</th>
                         <th>Color</th>
                         <th>Orden</th>
+                        <th>New</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($landings)): ?>
-                        <tr><td colspan="7" style="text-align:center; padding:30px; color:#999">No se encontraron landings</td></tr>
+                        <tr><td colspan="8" style="text-align:center; padding:30px; color:#999">No se encontraron landings</td></tr>
                     <?php endif; ?>
                     <?php
                     $prevSection = '';
@@ -269,14 +278,14 @@ $colorOptions = ['pink', 'pink-t3', 'red', 'orange', 'mature-pink', 'mature-oran
                     ?>
                     <?php if ($sectionChanged && !$filterSection): ?>
                         <tr style="background:#1a1a2e; color:white;">
-                            <td colspan="7" style="font-weight:bold; text-transform:uppercase; padding:10px 16px;">
+                            <td colspan="8" style="font-weight:bold; text-transform:uppercase; padding:10px 16px;">
                                 <?= htmlspecialchars($l['parent_section']) ?>
                             </td>
                         </tr>
                     <?php endif; ?>
                     <?php if ($subsectionChanged && !$filterSubsection): ?>
                         <tr style="background:#e8ecf4;">
-                            <td colspan="7" style="font-weight:600; padding:8px 16px; color:#555;">
+                            <td colspan="8" style="font-weight:600; padding:8px 16px; color:#555;">
                                 <?= htmlspecialchars($l['section_title']) ?>
                             </td>
                         </tr>
@@ -288,6 +297,7 @@ $colorOptions = ['pink', 'pink-t3', 'red', 'orange', 'mature-pink', 'mature-oran
                         <td><?= htmlspecialchars($l['data_country']) ?></td>
                         <td style="font-size:0.85rem"><?= htmlspecialchars($l['data_color']) ?></td>
                         <td><?= $l['sort_order'] ?></td>
+                        <td><?php if ($l['is_new']): ?><span style="background:#ff4444; color:white; font-size:10px; font-weight:700; padding:2px 6px; border-radius:3px;">NEW</span><?php endif; ?></td>
                         <td class="actions">
                             <a href="?edit=<?= $l['id'] ?>" class="btn btn-primary btn-sm">Editar</a>
                             <a href="?delete=<?= $l['id'] ?>" class="btn btn-danger btn-sm"

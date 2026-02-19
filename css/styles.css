@@ -553,8 +553,8 @@ main .contentnamesdomains h3 {
 }
 main .content h3.mains,
 main .contentnamesdomains h3.mains {
-    padding: 10px 20px;
-    margin-bottom: 15px;
+    padding: 12px 25px;
+    margin-bottom: 20px;
     background-color: #688fb0;
     color: #fff;
 }
@@ -562,7 +562,7 @@ main .content h4,
 main .contentnamesdomains h4 {
     font-size: 18px;
     font-weight: 700;
-    padding: 10px 25px 15px;
+    padding: 5px 25px 15px;
 }
 main .content h4.mainssection:before,
 main .contentnamesdomains h4.mainssection:before {
@@ -583,7 +583,7 @@ main .contentnamesdomains .summary  {
 main .content .summary li,
 main .contentnamesdomains .summary li {
     padding: 8px 20px;
-    margin-bottom: 10px;
+    margin-bottom: 11px;
     font-size: 15px;
     font-weight: 600;
     position: relative;
@@ -614,6 +614,7 @@ main .contentnamesdomains .summary li.brandless {
     grid-template-columns: auto;
     grid-template-rows: auto auto;
     grid-gap: 7px;
+    max-width: 100%;
     /*height: 35px;*/
 }
 main .content .summary li.brandless span:before,
@@ -864,6 +865,26 @@ main .subsubmenu .showhiddeniframe {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+.badge-new {
+    position: absolute;
+    left: 14px;
+    bottom: -10px;
+    background: #ff4444;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin-left: 4px;
+    vertical-align: middle;
+    display: inline;
+    letter-spacing: 0.5px;
+    animation: pulse-new 2s ease-in-out infinite;
+}
+@keyframes pulse-new {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
 }
 .urlblock {
   display: inline-block;

@@ -216,7 +216,7 @@ td a:hover {
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
+    grid-column-gap: 15px;
 }
 
 /* Code tags (country codes) */
@@ -247,15 +247,20 @@ td a:hover {
 
 /* Buttons */
 .btn {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 10px 20px;
     border: none;
     border-radius: 8px;
     font-size: 0.9rem;
     font-weight: 600;
+    font-family: inherit;
+    line-height: 1;
     cursor: pointer;
     text-decoration: none;
     transition: all 0.2s;
+    box-sizing: border-box;
 }
 
 .btn-primary {
@@ -288,6 +293,7 @@ td a:hover {
 .btn-sm {
     padding: 5px 12px;
     font-size: 0.8rem;
+    line-height: inherit;
 }
 
 /* Actions column */

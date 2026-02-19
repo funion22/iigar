@@ -163,50 +163,57 @@ $vMainJS = @filemtime('js/main.js') ?: time();
                         const iframe = document.getElementById('iframe');
                         if (!iframe) return;
                         const STORAGE_KEY = 'pagifier_iframe_height';
-                        const MIN_HEIGHT = 300;
-                        let resizeStartHeight = 0;
+                        const MIN_HEIGHT = 400;
                         let isResizing = false;
+                        let lockedHeight = null;
 
-                        // Restaurar altura guardada
                         const saved = sessionStorage.getItem(STORAGE_KEY);
                         if (saved) {
                             const h = parseInt(saved);
                             if (h >= MIN_HEIGHT) {
                                 iframe.style.height = saved;
+                                lockedHeight = saved;
                             } else {
                                 sessionStorage.removeItem(STORAGE_KEY);
                             }
                         }
 
-                        // Solo detectar drag en el resize handle (esquina inferior-derecha ~20px)
                         iframe.addEventListener('pointerdown', (e) => {
                             const rect = iframe.getBoundingClientRect();
-                            const nearBottom = (rect.bottom - e.clientY) < 20;
-                            const nearRight = (rect.right - e.clientX) < 20;
-                            if (nearBottom && nearRight) {
+                            if ((rect.bottom - e.clientY) < 20 && (rect.right - e.clientX) < 20) {
                                 isResizing = true;
-                                resizeStartHeight = iframe.offsetHeight;
                             }
                         });
 
                         document.addEventListener('pointerup', () => {
                             if (isResizing) {
-                                const newHeight = iframe.offsetHeight;
-                                if (newHeight !== resizeStartHeight && newHeight >= MIN_HEIGHT) {
-                                    sessionStorage.setItem(STORAGE_KEY, newHeight + 'px');
+                                const h = iframe.offsetHeight;
+                                if (h >= MIN_HEIGHT) {
+                                    const val = h + 'px';
+                                    sessionStorage.setItem(STORAGE_KEY, val);
+                                    lockedHeight = val;
                                 }
                                 isResizing = false;
-                                resizeStartHeight = 0;
                             }
                         });
 
-                        // Toggle iframe
+                        const observer = new ResizeObserver(() => {
+                            if (!isResizing && lockedHeight && iframe.style.display !== 'none') {
+                                iframe.style.height = lockedHeight;
+                            }
+                        });
+                        observer.observe(iframe);
+
                         document.querySelectorAll('.openiframe').forEach(btn => {
                             btn.addEventListener('click', () => {
                                 if (iframe.style.display === 'none') {
                                     iframe.style.display = 'block';
+                                    if (lockedHeight) {
+                                        iframe.style.height = lockedHeight;
+                                    }
                                 } else {
                                     sessionStorage.removeItem(STORAGE_KEY);
+                                    lockedHeight = null;
                                     iframe.style.height = '';
                                     iframe.style.display = 'none';
                                 }
@@ -334,7 +341,7 @@ $vMainJS = @filemtime('js/main.js') ?: time();
                             <ul class="summary summarylinks submenu">
                                 <?php foreach ($items as $l): ?>
                                 <li class="ci" data-country="<?= htmlspecialchars($l['data_country']) ?>" data-color="<?= htmlspecialchars($l['data_color']) ?>">
-                                    <a class='replaceMe sTxturl1' href="https://domainName<?= htmlspecialchars($l['url_path']) ?>" target="_blank" data-to-be-replaced='domainName'>https://domainName<?= htmlspecialchars($l['url_path']) ?></a>
+                                    <a class='replaceMe sTxturl1' href="https://domainName<?= htmlspecialchars($l['url_path']) ?>" target="_blank" data-to-be-replaced='domainName'>https://domainName<?= htmlspecialchars($l['url_path']) ?></a><?php if ($l['is_new']): ?><span class="badge-new">New</span><?php endif; ?>
                                     <?php
                                     // Generar enlaces con clases compatibles (sTxtcpm, sTxtcpl, etc) y spans con formato sNresetN
                                     foreach ($campaignTypes as $i => $ct):
@@ -391,7 +398,6 @@ $vMainJS = @filemtime('js/main.js') ?: time();
     </div>
 
     <script>
-            // CACHE BUSTER - versión de main.js disponible para carga dinámica
             const JS_MAIN_VERSION = '<?= $vMainJS ?>';
 
             document.addEventListener("DOMContentLoaded", () => {
@@ -493,7 +499,6 @@ $vMainJS = @filemtime('js/main.js') ?: time();
                 });
             }
 
-            // CACHE BUSTER - añade ?v= al cargar main.js dinámicamente
             function cargarScriptSiNoExiste(src) {
                 const versionedSrc = src + '?v=' + JS_MAIN_VERSION;
                 if (!document.querySelector(`script[src="${versionedSrc}"]`)) {
@@ -503,7 +508,6 @@ $vMainJS = @filemtime('js/main.js') ?: time();
                 }
             }
 
-            // CACHE BUSTER - añade ?v= al cargar main.js
             document.querySelector('.hideIframes').addEventListener( "click", function() {
                 document.querySelector('.iframeSelection').style.display = "none";
                 document.querySelector('.label').style.display = "none";
@@ -513,6 +517,18 @@ $vMainJS = @filemtime('js/main.js') ?: time();
                 newScript.src = "js/main.js?v=" + JS_MAIN_VERSION;
                 document.querySelector('.script').appendChild(newScript);
                 getNoIframes();
+            });
+
+            document.querySelectorAll('.contentalfor a[href^="#"]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const targetId = this.getAttribute('href').substring(1);
+                    const target = document.getElementById(targetId);
+                    if (target) {
+                        e.preventDefault();
+                        target.scrollIntoView({ behavior: 'smooth' });
+                        history.replaceState(null, '', window.location.pathname);
+                    }
+                });
             });
     </script>
 
