@@ -11,6 +11,7 @@ if (isset($_GET['delete'])) {
     $id = (int)$_GET['delete'];
     $stmt = $pdo->prepare("DELETE FROM landings WHERE id = ?");
     $stmt->execute([$id]);
+    $pdo->exec("SET @pos := 0; UPDATE landings SET sort_order = (@pos := @pos + 1) ORDER BY sort_order");
     $msg = 'Landing eliminada correctamente.';
     $msgType = 'success';
 }
