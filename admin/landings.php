@@ -48,6 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$parent_section, $section_title, $url_path, $data_country, $data_color, $sort_order, $is_new, $id]);
             $msg = 'Landing actualizada correctamente.';
         } else {
+            $stmt = $pdo->prepare("UPDATE landings SET sort_order = sort_order + 1 WHERE sort_order >= ?");
+            $stmt->execute([$sort_order]);
             $stmt = $pdo->prepare("INSERT INTO landings (parent_section, section_title, url_path, data_country, data_color, sort_order, is_new) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([$parent_section, $section_title, $url_path, $data_country, $data_color, $sort_order, $is_new]);
             $msg = 'Landing creada correctamente.';
