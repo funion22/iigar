@@ -44,6 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($id > 0) {
+            $stmt = $pdo->prepare("UPDATE landings SET sort_order = sort_order + 1 WHERE sort_order >= ? AND id != ?");
+            $stmt->execute([$sort_order, $id]);
             $stmt = $pdo->prepare("UPDATE landings SET parent_section=?, section_title=?, url_path=?, data_country=?, data_color=?, sort_order=?, is_new=? WHERE id=?");
             $stmt->execute([$parent_section, $section_title, $url_path, $data_country, $data_color, $sort_order, $is_new, $id]);
             $msg = 'Landing actualizada correctamente.';
