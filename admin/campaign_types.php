@@ -66,6 +66,7 @@ $campaigns = $pdo->query("SELECT * FROM campaign_types ORDER BY sort_order, id")
                 <a href="countries.php">Países</a>
                 <a href="domains.php">Dominios</a>
                 <a href="landings.php">Landings</a>
+                <a href="brandless_landings.php">Brandless</a>
                 <a href="campaign_types.php" class="active">Campañas</a>
                 <a href="../index.php" target="_blank">Ver página →</a>
             </nav>
