@@ -1,13 +1,14 @@
 <?php
 
-$adminPassword = $_SERVER['ADMIN_PASSWORD'] ?? '';
-$cookieName = 'pagifier_auth';
-$cookieToken = 'pgf_' . hash('sha256', 'pagifier_secret_key_2026');
+//$adminPassword = $_SERVER['INDEX_PASSWORD'] ?? '';
+$indexPassword = $_SERVER['INDEX_PASSWORD'] ?? 'pagifier2026';
+$cookieName = 'pagifier_index_auth';
+$cookieToken = 'pgfi_' . hash('sha256', 'pagifier_index_key_2026');
 
 // ── PROCESAR LOGIN ──
-if (isset($_POST['admin_password'])) {
-    if ($adminPassword !== '' && $_POST['admin_password'] === $adminPassword) {
-        setcookie($cookieName, $cookieToken, time() + 86400, '/');
+if (isset($_POST['index_password'])) {
+    if ($indexPassword !== '' && $_POST['index_password'] === $indexPassword) {
+        setcookie($cookieName, $cookieToken, time() + 86400 * 7, '/');
         $_COOKIE[$cookieName] = $cookieToken;
     } else {
         $login_error = true;
@@ -31,7 +32,7 @@ if (!$isLogged) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Admin Login - Pagifier</title>
+        <title>Login - Pagifier</title>
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
@@ -117,17 +118,17 @@ if (!$isLogged) {
     </head>
     <body>
         <div class="login-box">
-            <h1>🔒 Pagifier Admin</h1>
-            <p>Introduce la contraseña para acceder</p>
+            <h1>🔒 Pagifier</h1>
+            <p>Enter password to access</p>
             <?php if (!empty($login_error)): ?>
-            <div class="error">Contraseña incorrecta</div>
+            <div class="error">Incorrect password</div>
             <?php endif; ?>
             <form method="POST">
                 <div class="form-group">
-                    <label>Contraseña</label>
-                    <input type="password" name="admin_password" autofocus required>
+                    <label>Password</label>
+                    <input type="password" name="index_password" autofocus required>
                 </div>
-                <button type="submit" class="btn-login">Entrar</button>
+                <button type="submit" class="btn-login">Enter</button>
             </form>
         </div>
     </body>

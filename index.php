@@ -1,4 +1,5 @@
 <?php
+require_once 'auth_index.php';
 require_once 'admin/db.php';
 
 // ── CARGAR DATOS ──
