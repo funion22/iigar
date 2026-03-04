@@ -1,7 +1,6 @@
 <?php
 
-//$adminPassword = $_SERVER['INDEX_PASSWORD'] ?? '';
-$indexPassword = $_SERVER['INDEX_PASSWORD'] ?? 'pagifier2026';
+$indexPassword = $_SERVER['INDEX_PASSWORD'] ?? '';
 $cookieName = 'pagifier_index_auth';
 $cookieToken = 'pgfi_' . hash('sha256', 'pagifier_index_key_2026');
 
