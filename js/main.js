@@ -142,7 +142,7 @@ function filterLandingsByCountryAndColor(selectedCountry, selectedColor) {
     const landingColors = (landing.dataset.color || 'all').split(',').map(c => c.trim());
 
     const landingCountries = landingCountry.split(',').map(c => c.trim());
-    const countryMatch = landingCountries.includes('all') || landingCountries.includes(selectedCountry);
+    const countryMatch = selectedCountry === 'all' || landingCountries.includes('all') || landingCountries.includes(selectedCountry);
     const colorMatch = landingColors.includes('all') ||
                       landingColors.some(color => allowedColors.includes(color));
 
