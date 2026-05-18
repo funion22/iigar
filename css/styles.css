@@ -225,6 +225,8 @@ input, select {
 main {
     width: calc(100% - 510px);
     background-color: #f9f7f5;
+    align-self: flex-start;
+    min-height: 95vh;
 }
 main .iframe {
     width: 100%;
@@ -899,142 +901,76 @@ main .subsubmenu .showhiddeniframe {
     border-left: 2px solid #eeece7;
     padding-bottom: 20px;
 }
-.blockright .contentalfor {
+.domain-search-container {
+    padding: 15px;
+    position: sticky;
+    top: 0;
+}
+.domain-search-wrapper {
+    position: relative;
+}
+.domain-search-input {
     width: 100%;
-    max-width: 90%;
-    margin: 0 auto;
-    padding: 15px 0 10px;
-    font-size: 15px;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+    background-color: #f5f7f9;
 }
-.blockright .contentalfor ul {
-    width: 100%;
-    list-style-type: none;
-    display: flex;
-    justify-content: center;
-    padding-bottom: 10px;
+.domain-search-input:focus {
+    border-color: #688fb0;
+    background-color: #fff;
 }
-.blockright .contentalfor ul li {
-    padding-right: 10px;
+.domain-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 350px;
+    overflow-y: auto;
+    background: #edeae6;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 100;
 }
-.blockright .contentalfor ul li:last-child {
-    padding-right: 0;
-}
-.blockright .contentalfor ul li a {
-    font-size: 13px;
-    color: #141516;
-    text-decoration: none;
-}
-.blockright .contentalfor ul li a:hover {
-    text-decoration: underline;
-}
-.blockright .contentalfor ul li a.disabled {
-    color: #bbb;
-    cursor: initial;
-}
-.blockright .contentalfor ul li a.disabled:hover {
-    text-decoration: none;
-}
-.blockright .contentalfordom {
-    width: 100%;
-}
-.blockright .contentalfordom ul {
-    list-style-type: none;
-    padding-bottom: 25px;
-}
-.blockright .contentalfordom ul:last-child {
-    padding-bottom: 0;
-}
-.blockright .contentalfordom ul li {
-    list-style-type: none;
-    padding: 10px 20px 60px 15px;
+.domain-dropdown-item {
+    padding: 8px 14px;
+    cursor: pointer;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: flex-start;
-    position: relative;
-    margin-bottom: 2px;
+    border-top: 2px solid #fff;
+    transition: background 0.1s;
 }
-.blockright .contentalfordom ul li:after {
-    content: "";
-    position: absolute;
-    height: 3px;
-    bottom: -3px;
-    left: 0px;
-    width: 100%;
-    background-color: #edeae6;
-    z-index: 1;
-    cursor: initial;
+.domain-dropdown-item:first-child {
+    border-top: 0 ;
 }
-.blockright .contentalfordom ul li:first-child {
-    margin-top: 2px;
+.domain-dropdown-item:hover,
+.domain-dropdown-item.active {
+    background-color: #688fb0;
 }
-.blockright .contentalfordom ul li:first-child:before {
-    content: "";
-    position: absolute;
-    height: 3px;
-    top: -3px;
-    left: 0px;
-    width: 100%;
-    background-color: #edeae6;
-    z-index: 1;
-    cursor: initial;
+.domain-dropdown-item:hover span,
+.domain-dropdown-item.active span {
+    color: #ffffff;
 }
-.blockright .contentalfordom div {
-    display: flex;
-}
-.blockright .contentalfordom div img {
-    width: 20px;
-    height: 20px;
-    margin-left: 10px;
-    margin-top: -1px;
-}
-.blockright .contentalfordom ul li span {
-    position: absolute;
-    left: 15px;
-    bottom: 36px;
-    color: #688fb0;
+.domain-dropdown-name {
+    font-weight: 500;
     font-size: 13px;
-    font-weight: 500;
-    max-width: 240px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    cursor: default;
-}
-.blockright .contentalfordom ul li span.classad-main {
-    bottom: 12px;
-}
-.blockright .contentalfordom ul li span:before {
-    content: "";
-    white-space: pre;
-}
-.blockright .contentalfordom a {
-    position: relative;
-    display: inline-block;
-    font-size: 16px;
-    font-weight: 500;
     color: #141516;
-    text-decoration: none;
-    text-wrap: nowrap;
 }
-.blockright .contentalfordom a:after {
-    content: '';
-    position: absolute;
-    left: 18px;
-    display: inline-block;
-    height: 1em;
-    width: calc(100% - 18px);
-    border-bottom: 1px solid;
-    margin-top: 3px;
-    opacity: 0;
-    -webkit-transition: opacity 0.25s, -webkit-transform 0.25s;
-    transition: opacity 0.25s, transform 0.25s;
-    -webkit-transform: scale(0,1);
-    transform: scale(0,1);
-}
-.blockright .contentalfordom a:hover:after {
-    opacity: 1;
-    -webkit-transform: scale(1);
-    transform: scale(1);
+.domain-dropdown-meta {
+    font-size: 11px;
+    color: #888;
+    text-align: right;
+    flex-shrink: 0;
+    margin-top: 5px;
 }
 @media only screen and (max-width: 1399px) {
     .body {
@@ -1076,7 +1012,9 @@ main .subsubmenu .showhiddeniframe {
     main {
         width: 100%;
         height: auto !important;
+        min-height: auto;
         padding: 0 0 10px;
+        flex-shrink: 0;
     }
     main .contentcountries {
         padding: 0 10px;
@@ -1091,14 +1029,8 @@ main .subsubmenu .showhiddeniframe {
         border-left: 0;
         border-top: 2px solid #eeece7;
     }
-    .blockright .contentalfor {
-        font-size: 16px;
-    }
-    .blockright .contentalfor ul li {
-        padding-right: 15px;
-    }
-    .blockright .contentalfordom ul li span {
-        max-width: 100%;
+    .domain-search-container {
+        max-width: 400px;
     }
 }
 @media only screen and (max-width: 1150px) {
@@ -1143,9 +1075,6 @@ main .subsubmenu .showhiddeniframe {
     main .countries .countrylist span {
         display: none;
     }
-    main .contentalfordom ul li span {
-        display: none;
-    }
 }
 @media only screen and (max-width: 800px) {
     .blockleft {
@@ -1181,19 +1110,8 @@ main .subsubmenu .showhiddeniframe {
     }
 }
 @media only screen and (max-width: 380px) {
-    .blockright .contentalfor {
-        font-size: 15px;
-    }
-    .blockright .contentalfor ul li {
-        padding-right: 12px;
-    }
-}
-@media only screen and (max-width: 330px) {
-    .blockright .contentalfor {
-        font-size: 14px;
-    }
-    .blockright .contentalfor ul li {
-        padding-right: 10px;
+    .domain-search-input {
+        font-size: 13px;
     }
 }
 

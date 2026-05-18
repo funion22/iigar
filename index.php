@@ -361,39 +361,11 @@ $vMainJS = @filemtime('js/main.js') ?: time();
             </div>
         </main>
         <div class="blockright">
-            <div class="contentalfor">
-                <ul>
-                    <?php foreach (array_slice($allLetters, 0, 14) as $letter): ?>
-                    <li><a href="<?= in_array($letter, $activeLetters) ? '#'.$letter : '' ?>"<?= !in_array($letter, $activeLetters) ? ' class="disabled"' : '' ?>><?= strtoupper($letter) ?></a></li>
-                    <?php endforeach; ?>
-                </ul>
-                <ul>
-                    <?php foreach (array_slice($allLetters, 14) as $letter): ?>
-                    <li><a href="<?= in_array($letter, $activeLetters) ? '#'.$letter : '' ?>"<?= !in_array($letter, $activeLetters) ? ' class="disabled"' : '' ?>><?= strtoupper($letter) ?></a></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-            <div class="contentalfordom">
-                <?php foreach ($allLetters as $letter):
-                    if (!isset($domainsByLetter[$letter])) continue;
-                ?>
-                <ul id="<?= $letter ?>">
-                    <?php foreach ($domainsByLetter[$letter] as $d):
-                        $countryLabel = $d['sub_countries'] ?: ($d['country_sub_countries'] ?: $d['button_name']);
-                    ?>
-                    <li class='replacer showcontent' data-replacer='<?= htmlspecialchars($d['domain']) ?>'>
-                        <div>
-                            <a class="<?= htmlspecialchars($d['color_class']) ?>" data-attribute="showcolourcontent" href="javascript:void(0)"><?= htmlspecialchars(ucfirst(strtolower($d['display_name']))) ?></a>
-                            <?php if ($d['template']): ?>
-                            <img src="images/<?= $d['template'] ?>.png" alt="">
-                            <?php endif; ?>
-                        </div>
-                        <span><?= htmlspecialchars($countryLabel) ?></span>
-                        <span class="classad-main"><?= $categoryLabels[$d['category']] ?? ucfirst($d['category']) ?></span>
-                    </li>
-                    <?php endforeach; ?>
-                </ul>
-                <?php endforeach; ?>
+            <div class="domain-search-container">
+                <div class="domain-search-wrapper">
+                    <input type="text" id="domain-search" class="domain-search-input" placeholder="Domain..." autocomplete="off">
+                    <div id="domain-dropdown" class="domain-dropdown"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -416,14 +388,27 @@ $vMainJS = @filemtime('js/main.js') ?: time();
                 const main = document.querySelector('main');
 
                 if (blockLeft && blockRight && main) {
-                    const rightHeight = blockRight.scrollHeight;
-                    blockLeft.style.height = rightHeight + 'px';
-                    main.style.height = rightHeight + 'px';
+                    if (window.innerWidth > 1399) {
+                        const height = main.offsetHeight;
+                        blockLeft.style.minHeight = height + 'px';
+                        blockRight.style.minHeight = height + 'px';
+                    } else {
+                        blockLeft.style.minHeight = '';
+                        blockRight.style.minHeight = '';
+                    }
                 }
             }
             ajustarAlturas();
+            window.addEventListener('resize', ajustarAlturas);
 
-            window.addEventListener('resize', ajustarAlturas)
+            let _rafId;
+            const _mainEl = document.querySelector('main');
+            if (_mainEl) {
+                new MutationObserver(() => {
+                    if (_rafId) cancelAnimationFrame(_rafId);
+                    _rafId = requestAnimationFrame(ajustarAlturas);
+                }).observe(_mainEl, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+            }
 
             function getIframes() {
                 setTimeout(() => {
@@ -519,18 +504,6 @@ $vMainJS = @filemtime('js/main.js') ?: time();
                 document.querySelector('.script').appendChild(newScript);
                 getNoIframes();
             });
-
-            document.querySelectorAll('.contentalfor a[href^="#"]').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    const targetId = this.getAttribute('href').substring(1);
-                    const target = document.getElementById(targetId);
-                    if (target) {
-                        e.preventDefault();
-                        target.scrollIntoView({ behavior: 'smooth' });
-                        history.replaceState(null, '', window.location.pathname);
-                    }
-                });
-            });
     </script>
 
     <script>
@@ -541,6 +514,170 @@ $vMainJS = @filemtime('js/main.js') ?: time();
             'index'     => $i + 1,
         ];
     }, $campaignTypes, array_keys($campaignTypes)))) ?>;
+
+    const ALL_DOMAINS = <?= json_encode(array_map(function($d) {
+        return [
+            'domain' => $d['domain'],
+            'name' => $d['display_name'],
+            'color_class' => $d['color_class'],
+            'category' => $d['category'],
+            'template' => $d['template'] ?? '',
+            'country' => $d['button_name'],
+            'sub_countries' => $d['sub_countries'] ?? ($d['country_sub_countries'] ?? ''),
+        ];
+    }, $allDomainsAlpha)) ?>;
+    </script>
+
+    <script>
+    (function() {
+        const input = document.getElementById('domain-search');
+        const dropdown = document.getElementById('domain-dropdown');
+        if (!input || !dropdown) return;
+
+        let selectedIndex = -1;
+
+        const categoryLabels = {
+            'adult': 'Adult & Casual',
+            'mature': 'Mature',
+            'mainstream': 'Mainstream',
+            'brandless': 'Brandless',
+        };
+
+        const colorEntries = {
+            'pinkshows': 'pink', 'pinkshowst3': 'pink-t3',
+            'redshows': 'red', 'orangeshows': 'orange',
+            'maturepinkshows': 'mature-pink', 'matureorangeshows': 'mature-orange',
+        };
+
+        function getFiltered(query) {
+            if (!query) return [];
+            return ALL_DOMAINS.filter(d =>
+                d.name.toLowerCase().startsWith(query) ||
+                d.domain.toLowerCase().startsWith(query)
+            );
+        }
+
+        function renderDropdown(filtered) {
+            if (!filtered.length) {
+                dropdown.style.display = 'none';
+                return;
+            }
+            dropdown.innerHTML = filtered.map((d, i) => `
+                <div class="domain-dropdown-item${i === selectedIndex ? ' active' : ''}" data-index="${i}">
+                    <span class="domain-dropdown-name">${d.name.charAt(0).toUpperCase() + d.name.slice(1).toLowerCase()}</span>
+                    <span class="domain-dropdown-meta">${d.country} · ${categoryLabels[d.category] || d.category}</span>
+                </div>
+            `).join('');
+            dropdown.style.display = 'block';
+        }
+
+        function selectDomain(d) {
+            dropdown.style.display = 'none';
+            input.value = d.name.charAt(0).toUpperCase() + d.name.slice(1).toLowerCase();
+            selectedIndex = -1;
+
+            const color = colorEntries[d.color_class] || 'pink';
+            currentCountry = 'all';
+            currentColor = color;
+
+            // Reemplazar URLs
+            replaceUs.forEach((elem) => {
+                const wholeString = elem.getAttribute('href');
+                const toBeReplaced = elem.dataset.toBeReplaced;
+                const stringWithReplacement = wholeString.replace(toBeReplaced, d.domain);
+                elem.dataset.toBeReplaced = d.domain;
+                elem.setAttribute('href', stringWithReplacement);
+                elem.textContent = stringWithReplacement;
+            });
+
+            // Mostrar landings
+            document.querySelectorAll('.contentdomains').forEach(el => {
+                el.style.display = 'none';
+            });
+            const showinputs = document.querySelector('.subsubmenu');
+            if (showinputs) showinputs.style.display = 'none';
+
+            document.getElementById('content-domains').style.display = 'block';
+
+            const landingscontent = document.getElementById('landingscontent');
+            if (landingscontent) {
+                landingscontent.style.display = 'block';
+                if (showinputs) showinputs.style.display = 'block';
+            }
+
+            filterLandingsByCountryAndColor(currentCountry, currentColor);
+
+            // Limpiar inputs de campaña
+            document.querySelectorAll('input[data-attribute="inputOption"]').forEach(i => i.value = '');
+            slink1.forEach(el => el.style.display = 'block');
+            allTrafficLinks.forEach(el => el.style.display = 'none');
+
+            const selectone = document.querySelector('.selecttraffic');
+            if (selectone) selectone.value = '';
+            document.querySelectorAll('[data-attribute="options"]').forEach(el => el.style.display = 'none');
+
+            // Actualizar iframes
+            const iframes = document.querySelectorAll('.iframecapture');
+            if (iframes.length) {
+                const hrefs = [];
+                for (const anchor of slink1) {
+                    hrefs.push(anchor.getAttribute('href'));
+                }
+                iframes.forEach((iframe, i) => {
+                    if (i < hrefs.length) {
+                        iframe.setAttribute('src', 'iframe-proxy.php?url=' + encodeURIComponent(hrefs[i]));
+                    }
+                });
+            }
+
+            const landingsAnchor = document.getElementById('landings');
+            if (landingsAnchor) {
+                landingsAnchor.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        input.addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase();
+            selectedIndex = -1;
+            if (!query) {
+                dropdown.style.display = 'none';
+                return;
+            }
+            renderDropdown(getFiltered(query));
+        });
+
+        input.addEventListener('keydown', function(e) {
+            const filtered = getFiltered(input.value.trim().toLowerCase());
+            if (!filtered.length) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, filtered.length - 1);
+                renderDropdown(filtered);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, 0);
+                renderDropdown(filtered);
+            } else if (e.key === 'Enter' && selectedIndex >= 0) {
+                e.preventDefault();
+                selectDomain(filtered[selectedIndex]);
+            }
+        });
+
+        dropdown.addEventListener('click', function(e) {
+            const item = e.target.closest('.domain-dropdown-item');
+            if (!item) return;
+            const filtered = getFiltered(input.value.trim().toLowerCase());
+            const idx = parseInt(item.dataset.index);
+            selectDomain(filtered[idx]);
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.domain-search-wrapper')) {
+                dropdown.style.display = 'none';
+            }
+        });
+    })();
     </script>
 
     <div class="script"></div>
