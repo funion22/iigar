@@ -363,6 +363,7 @@ $vMainJS = @filemtime('js/main.js') ?: time();
         <div class="blockright">
             <div class="domain-search-container">
                 <div class="domain-search-wrapper">
+                    <p class="domain-search-hint">Start typing a domain name or <br> Type <strong>All</strong> to see every domain</p>
                     <input type="text" id="domain-search" class="domain-search-input" placeholder="Domain..." autocomplete="off">
                     <div id="domain-dropdown" class="domain-dropdown"></div>
                 </div>
@@ -552,6 +553,7 @@ $vMainJS = @filemtime('js/main.js') ?: time();
 
         function getFiltered(query) {
             if (!query) return [];
+            if (query === 'all') return ALL_DOMAINS;
             return ALL_DOMAINS.filter(d =>
                 d.name.toLowerCase().startsWith(query) ||
                 d.domain.toLowerCase().startsWith(query)
