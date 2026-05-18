@@ -524,6 +524,7 @@ $vMainJS = @filemtime('js/main.js') ?: time();
             'template' => $d['template'] ?? '',
             'country' => $d['button_name'],
             'sub_countries' => $d['sub_countries'] ?? ($d['country_sub_countries'] ?? ''),
+            'data_country' => $d['data_country'] ?? '',
         ];
     }, $allDomainsAlpha)) ?>;
     </script>
@@ -577,7 +578,7 @@ $vMainJS = @filemtime('js/main.js') ?: time();
             selectedIndex = -1;
 
             const color = colorEntries[d.color_class] || 'pink';
-            currentCountry = 'all';
+            currentCountry = d.data_country || 'all';
             currentColor = color;
 
             // Reemplazar URLs
