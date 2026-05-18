@@ -469,3 +469,8 @@ inputOption.forEach(function(input) {
     });
   });
 });
+
+document.getElementById('domain-search').addEventListener('focus', function() {
+    this.value = '';
+    dropdown.style.display = 'none';
+});
