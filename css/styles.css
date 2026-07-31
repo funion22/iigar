@@ -205,6 +205,9 @@ input, select {
     z-index: 1;
     cursor: initial;
 }
+.blockleft .flags .linedivisor:last-child {
+    display: none;
+}
 /*.blockleft .flags .countrylink:last-child:after {
     background-color: rgba(0,0,0,0);
 }*/
