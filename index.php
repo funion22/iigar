@@ -614,6 +614,11 @@ $vMainJS = @filemtime('js/main.js') ?: time();
             }
         }
 
+        input.addEventListener('focus', function() {
+            this.value = '';
+            dropdown.style.display = 'none';
+        });
+
         input.addEventListener('input', function() {
             const query = this.value.trim().toLowerCase();
             selectedIndex = -1;
