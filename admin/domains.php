@@ -1,6 +1,7 @@
 <?php
 require_once 'auth.php';
 require_once 'db.php';
+require_once 'sort_order.php';
 
 $msg = '';
 $msgType = '';
@@ -9,12 +10,25 @@ $editing = null;
 // ── ELIMINAR ──
 if (isset($_GET['delete'])) {
     $id = (int)$_GET['delete'];
-    $stmt = $pdo->prepare("DELETE FROM domains WHERE id = ?");
-    $stmt->execute([$id]);
+    $pdo->beginTransaction();
+    try {
+        // El país de la fila, para renumerar solo ese grupo
+        $q = $pdo->prepare("SELECT country_id FROM domains WHERE id = ?");
+        $q->execute([$id]);
+        $countryOfRow = $q->fetchColumn();
+
+        $pdo->prepare("DELETE FROM domains WHERE id = ?")->execute([$id]);
+        if ($countryOfRow !== false) {
+            sortRenumber($pdo, 'domains', 'country_id', $countryOfRow);
+        }
+        $pdo->commit();
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
     $msg = 'Dominio eliminado correctamente.';
     $msgType = 'success';
 }
-
 // ── EDITAR (cargar datos) ──
 if (isset($_GET['edit'])) {
     $id = (int)$_GET['edit'];
@@ -57,26 +71,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $msg = 'El dominio y el país son obligatorios.';
         $msgType = 'error';
     } else {
-        if ($id > 0) {
-            $conflict = $pdo->prepare("SELECT COUNT(*) FROM domains WHERE sort_order = ? AND id != ?");
-            $conflict->execute([$sort_order, $id]);
-            if ($conflict->fetchColumn() > 0) {
-                $pdo->prepare("UPDATE domains SET sort_order = sort_order + 1 WHERE sort_order >= ? AND id != ?")
-                    ->execute([$sort_order, $id]);
+        $pdo->beginTransaction();
+        try {
+            $r = sortPrepare($pdo, 'domains', $id, $sort_order, 'country_id', $country_id);
+            $sort_order = $r['pos'];
+
+            if ($id > 0) {
+                $stmt = $pdo->prepare("UPDATE domains SET country_id=?, domain=?, display_name=?, category=?, color_class=?, template=?, data_country=?, sub_countries=?, sort_order=? WHERE id=?");
+                $stmt->execute([$country_id, $domain, $display_name, $category, $color_class, $template, $data_country, $sub_countries, $sort_order, $id]);
+                $msg = 'Dominio actualizado correctamente.';
+            } else {
+                $stmt = $pdo->prepare("INSERT INTO domains (country_id, domain, display_name, category, color_class, template, data_country, sub_countries, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$country_id, $domain, $display_name, $category, $color_class, $template, $data_country, $sub_countries, $sort_order]);
+                $msg = 'Dominio creado correctamente.';
             }
-            $stmt = $pdo->prepare("UPDATE domains SET country_id=?, domain=?, display_name=?, category=?, color_class=?, template=?, data_country=?, sub_countries=?, sort_order=? WHERE id=?");
-            $stmt->execute([$country_id, $domain, $display_name, $category, $color_class, $template, $data_country, $sub_countries, $sort_order, $id]);
-            $msg = 'Dominio actualizado correctamente.';
-        } else {
-            $conflict = $pdo->prepare("SELECT COUNT(*) FROM domains WHERE sort_order = ?");
-            $conflict->execute([$sort_order]);
-            if ($conflict->fetchColumn() > 0) {
-                $pdo->prepare("UPDATE domains SET sort_order = sort_order + 1 WHERE sort_order >= ?")
-                    ->execute([$sort_order]);
+
+            sortRenumber($pdo, 'domains', 'country_id', $country_id);
+            // Si el dominio venía de otro país, cerrar también el hueco de origen
+            if ($r['oldScope'] !== null) {
+                sortRenumber($pdo, 'domains', 'country_id', $r['oldScope']);
             }
-            $stmt = $pdo->prepare("INSERT INTO domains (country_id, domain, display_name, category, color_class, template, data_country, sub_countries, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$country_id, $domain, $display_name, $category, $color_class, $template, $data_country, $sub_countries, $sort_order]);
-            $msg = 'Dominio creado correctamente.';
+            $pdo->commit();
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
         }
         $msgType = 'success';
         $editing = null;

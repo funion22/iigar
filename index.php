@@ -32,7 +32,7 @@ foreach ($landings as $l) {
 }
 
 // Brandless landings
-$brandlessLandings = $pdo->query("SELECT * FROM brandless_landings ORDER BY sort_order")->fetchAll();
+$brandlessLandings = $pdo->query("SELECT * FROM brandless_landings ORDER BY language_code, sort_order")->fetchAll();
 
 // Agrupar: [language_code][section] => array
 $brandlessByLang = [];

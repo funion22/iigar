@@ -1,6 +1,7 @@
 <?php
 require_once 'auth.php';
 require_once 'db.php';
+require_once 'sort_order.php';
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $errors = [];
@@ -64,13 +65,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Guardar
     if (empty($errors)) {
         try {
+            $pdo->beginTransaction();
+
+            $r = sortPrepare($pdo, 'campaign_types', $id, $sort_order);
+            $sort_order = $r['pos'];
+
             if ($id > 0) {
-                $conflict = $pdo->prepare("SELECT COUNT(*) FROM campaign_types WHERE sort_order = ? AND id != ?");
-                $conflict->execute([$sort_order, $id]);
-                if ($conflict->fetchColumn() > 0) {
-                    $pdo->prepare("UPDATE campaign_types SET sort_order = sort_order + 1 WHERE sort_order >= ? AND id != ?")
-                        ->execute([$sort_order, $id]);
-                }
                 // Actualizar
                 $stmt = $pdo->prepare("
                     UPDATE campaign_types
@@ -79,12 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ");
                 $stmt->execute([$code, $label, $url_params, $sort_order, $active, $id]);
             } else {
-                $conflict = $pdo->prepare("SELECT COUNT(*) FROM campaign_types WHERE sort_order = ?");
-                $conflict->execute([$sort_order]);
-                if ($conflict->fetchColumn() > 0) {
-                    $pdo->prepare("UPDATE campaign_types SET sort_order = sort_order + 1 WHERE sort_order >= ?")
-                        ->execute([$sort_order]);
-                }
                 // Crear
                 $stmt = $pdo->prepare("
                     INSERT INTO campaign_types (code, label, url_params, sort_order, active)
@@ -93,9 +87,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$code, $label, $url_params, $sort_order, $active]);
             }
 
+            sortRenumber($pdo, 'campaign_types');
+            $pdo->commit();
+
             header("Location: campaign_types.php");
             exit;
         } catch (PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             $errors[] = "Error al guardar: " . $e->getMessage();
         }
     }

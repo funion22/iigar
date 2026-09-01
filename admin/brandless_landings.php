@@ -1,6 +1,7 @@
 <?php
 require_once 'auth.php';
 require_once 'db.php';
+require_once 'sort_order.php';
 
 $msg = '';
 $msgType = '';
@@ -9,16 +10,25 @@ $editing = null;
 // ── ELIMINAR ──
 if (isset($_GET['delete'])) {
     $id = (int)$_GET['delete'];
-    $stmt = $pdo->prepare("DELETE FROM brandless_landings WHERE id = ?");
-    $stmt->execute([$id]);
+    $pdo->beginTransaction();
+    try {
+        // El idioma de la fila, para renumerar solo ese grupo
+        $q = $pdo->prepare("SELECT language_code FROM brandless_landings WHERE id = ?");
+        $q->execute([$id]);
+        $langOfRow = $q->fetchColumn();
 
-    // Reordenar para cerrar huecos
-    $pdo->exec("SET @pos := 0; UPDATE brandless_landings SET sort_order = (@pos := @pos + 1) ORDER BY sort_order");
-
+        $pdo->prepare("DELETE FROM brandless_landings WHERE id = ?")->execute([$id]);
+        if ($langOfRow !== false) {
+            sortRenumber($pdo, 'brandless_landings', 'language_code', $langOfRow);
+        }
+        $pdo->commit();
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
     $msg = 'Brandless landing eliminada correctamente.';
     $msgType = 'success';
 }
-
 // ── EDITAR (cargar datos) ──
 if (isset($_GET['edit'])) {
     $id = (int)$_GET['edit'];
@@ -55,18 +65,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $msg = 'Ya existe una brandless landing con esa URL para ese idioma.';
             $msgType = 'error';
         } else {
-            if ($id > 0) {
-                $stmt = $pdo->prepare("UPDATE brandless_landings SET sort_order = sort_order + 1 WHERE sort_order >= ? AND id != ?");
-                $stmt->execute([$sort_order, $id]);
-                $stmt = $pdo->prepare("UPDATE brandless_landings SET language_code=?, section=?, url_path=?, label=?, sort_order=? WHERE id=?");
-                $stmt->execute([$language_code, $section, $url_path, $label, $sort_order, $id]);
-                $msg = 'Brandless landing actualizada correctamente.';
-            } else {
-                $stmt = $pdo->prepare("UPDATE brandless_landings SET sort_order = sort_order + 1 WHERE sort_order >= ?");
-                $stmt->execute([$sort_order]);
-                $stmt = $pdo->prepare("INSERT INTO brandless_landings (language_code, section, url_path, label, sort_order) VALUES (?, ?, ?, ?, ?)");
-                $stmt->execute([$language_code, $section, $url_path, $label, $sort_order]);
-                $msg = 'Brandless landing creada correctamente.';
+            $pdo->beginTransaction();
+            try {
+                $r = sortPrepare($pdo, 'brandless_landings', $id, $sort_order, 'language_code', $language_code);
+                $sort_order = $r['pos'];
+
+                if ($id > 0) {
+                    $stmt = $pdo->prepare("UPDATE brandless_landings SET language_code=?, section=?, url_path=?, label=?, sort_order=? WHERE id=?");
+                    $stmt->execute([$language_code, $section, $url_path, $label, $sort_order, $id]);
+                    $msg = 'Brandless landing actualizada correctamente.';
+                } else {
+                    $stmt = $pdo->prepare("INSERT INTO brandless_landings (language_code, section, url_path, label, sort_order) VALUES (?, ?, ?, ?, ?)");
+                    $stmt->execute([$language_code, $section, $url_path, $label, $sort_order]);
+                    $msg = 'Brandless landing creada correctamente.';
+                }
+
+                sortRenumber($pdo, 'brandless_landings', 'language_code', $language_code);
+                // Si la landing venía de otro idioma, cerrar también el hueco de origen
+                if ($r['oldScope'] !== null) {
+                    sortRenumber($pdo, 'brandless_landings', 'language_code', $r['oldScope']);
+                }
+                $pdo->commit();
+            } catch (Throwable $e) {
+                $pdo->rollBack();
+                throw $e;
             }
             $msgType = 'success';
             $editing = null;

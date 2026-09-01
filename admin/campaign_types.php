@@ -1,11 +1,20 @@
 <?php
 require_once 'auth.php';
 require_once 'db.php';
+require_once 'sort_order.php';
 
 // Eliminar tipo de campaña
 if (isset($_GET['delete'])) {
     $id = (int)$_GET['delete'];
-    $pdo->prepare("DELETE FROM campaign_types WHERE id = ?")->execute([$id]);
+    $pdo->beginTransaction();
+    try {
+        $pdo->prepare("DELETE FROM campaign_types WHERE id = ?")->execute([$id]);
+        sortRenumber($pdo, 'campaign_types');
+        $pdo->commit();
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
     header("Location: campaign_types.php");
     exit;
 }
