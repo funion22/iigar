@@ -1,7 +1,14 @@
 -- Esquema de la base de datos de Pagifier (solo estructura).
--- Restaurar:  mysql -u root -e "CREATE DATABASE IF NOT EXISTS pagifier CHARACTER SET utf8mb4"
---             mysql -u root pagifier < db/schema.sql
---             mysql -u root pagifier < db/seed.sql
+--
+-- Levantar el proyecto desde cero:
+--   mysql -u root -e "CREATE DATABASE IF NOT EXISTS pagifier CHARACTER SET utf8mb4"
+--   mysql -u root pagifier < db/schema.sql
+--   mysql -u root pagifier < db/seed_config.sql    (países y tipos de campaña)
+--
+-- El contenido (domains y landings) no se versiona. Para traerlo de una
+-- instalación que ya funcione (el fichero queda fuera de git):
+--   mysqldump -u root --no-create-info --complete-insert pagifier domains landings > db/seed.sql
+--   mysql -u root pagifier < db/seed.sql
 
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
@@ -90,4 +97,3 @@ CREATE TABLE `landings` (
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-

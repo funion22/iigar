@@ -13,3 +13,4 @@ Thumbs.db
 .DS_Store
 db/*
 !db/schema.sql
+!db/seed_config.sql
