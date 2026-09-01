@@ -6,12 +6,29 @@ $msg = '';
 $msgType = '';
 $editing = null;
 
+/**
+ * Renumera sort_order como 1..N respetando el orden actual.
+ * Cierra los huecos que dejan borrados y ediciones, de forma que
+ * sort_order siempre coincide con la posición real en la lista.
+ */
+function renumerarLandings(PDO $pdo) {
+    $pdo->exec("SET @pos := 0");
+    $pdo->exec("UPDATE landings SET sort_order = (@pos := @pos + 1) ORDER BY sort_order, id");
+}
+
 // ── ELIMINAR ──
 if (isset($_GET['delete'])) {
     $id = (int)$_GET['delete'];
-    $stmt = $pdo->prepare("DELETE FROM landings WHERE id = ?");
-    $stmt->execute([$id]);
-    $pdo->exec("SET @pos := 0; UPDATE landings SET sort_order = (@pos := @pos + 1) ORDER BY sort_order");
+    $pdo->beginTransaction();
+    try {
+        $stmt = $pdo->prepare("DELETE FROM landings WHERE id = ?");
+        $stmt->execute([$id]);
+        renumerarLandings($pdo);
+        $pdo->commit();
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
     $msg = 'Landing eliminada correctamente.';
     $msgType = 'success';
 }
@@ -51,18 +68,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $msg = 'Ya existe una landing con esa URL.';
             $msgType = 'error';
         } else {
-            if ($id > 0) {
-                $stmt = $pdo->prepare("UPDATE landings SET sort_order = sort_order + 1 WHERE sort_order >= ? AND id != ?");
-                $stmt->execute([$sort_order, $id]);
-                $stmt = $pdo->prepare("UPDATE landings SET parent_section=?, section_title=?, url_path=?, data_country=?, data_color=?, sort_order=?, is_new=? WHERE id=?");
-                $stmt->execute([$parent_section, $section_title, $url_path, $data_country, $data_color, $sort_order, $is_new, $id]);
-                $msg = 'Landing actualizada correctamente.';
-            } else {
-                $stmt = $pdo->prepare("UPDATE landings SET sort_order = sort_order + 1 WHERE sort_order >= ?");
-                $stmt->execute([$sort_order]);
-                $stmt = $pdo->prepare("INSERT INTO landings (parent_section, section_title, url_path, data_country, data_color, sort_order, is_new) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$parent_section, $section_title, $url_path, $data_country, $data_color, $sort_order, $is_new]);
-                $msg = 'Landing creada correctamente.';
+            $pdo->beginTransaction();
+            try {
+                $total = (int)$pdo->query("SELECT COUNT(*) FROM landings")->fetchColumn();
+
+                if ($id > 0) {
+                    // Hace falta la posición actual: sin ella no se sabe hacia dónde
+                    // se mueve la landing ni se puede cerrar el hueco que deja atrás.
+                    $cur = $pdo->prepare("SELECT sort_order FROM landings WHERE id = ?");
+                    $cur->execute([$id]);
+                    $oldOrder = (int)$cur->fetchColumn();
+
+                    // Acotar a una posición que exista de verdad
+                    $sort_order = max(1, min($sort_order, $total));
+
+                    if ($sort_order < $oldOrder) {
+                        // Sube: las que quedan en medio bajan un puesto
+                        $pdo->prepare("UPDATE landings SET sort_order = sort_order + 1 WHERE sort_order >= ? AND sort_order < ? AND id != ?")
+                            ->execute([$sort_order, $oldOrder, $id]);
+                    } elseif ($sort_order > $oldOrder) {
+                        // Baja: las de en medio suben un puesto, cerrando el hueco que deja
+                        $pdo->prepare("UPDATE landings SET sort_order = sort_order - 1 WHERE sort_order > ? AND sort_order <= ? AND id != ?")
+                            ->execute([$oldOrder, $sort_order, $id]);
+                    }
+                    // Si no cambia de posición no se toca a nadie. Antes se desplazaba
+                    // igualmente todo lo que hubiera por debajo, y de ahí los huecos.
+
+                    $stmt = $pdo->prepare("UPDATE landings SET parent_section=?, section_title=?, url_path=?, data_country=?, data_color=?, sort_order=?, is_new=? WHERE id=?");
+                    $stmt->execute([$parent_section, $section_title, $url_path, $data_country, $data_color, $sort_order, $is_new, $id]);
+                    $msg = 'Landing actualizada correctamente.';
+                } else {
+                    // Alta: hueco en la posición pedida y se inserta ahí
+                    $sort_order = max(1, min($sort_order, $total + 1));
+                    $pdo->prepare("UPDATE landings SET sort_order = sort_order + 1 WHERE sort_order >= ?")
+                        ->execute([$sort_order]);
+                    $stmt = $pdo->prepare("INSERT INTO landings (parent_section, section_title, url_path, data_country, data_color, sort_order, is_new) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([$parent_section, $section_title, $url_path, $data_country, $data_color, $sort_order, $is_new]);
+                    $msg = 'Landing creada correctamente.';
+                }
+
+                renumerarLandings($pdo);
+                $pdo->commit();
+            } catch (Throwable $e) {
+                $pdo->rollBack();
+                throw $e;
             }
             $msgType = 'success';
             $editing = null;
