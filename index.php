@@ -383,34 +383,6 @@ $vMainJS = @filemtime('js/main.js') ?: time();
               });
             });
 
-            function ajustarAlturas() {
-                const blockLeft = document.querySelector('.blockleft');
-                const blockRight = document.querySelector('.blockright');
-                const main = document.querySelector('main');
-
-                if (blockLeft && blockRight && main) {
-                    if (window.innerWidth > 1399) {
-                        const height = main.offsetHeight;
-                        blockLeft.style.minHeight = height + 'px';
-                        blockRight.style.minHeight = height + 'px';
-                    } else {
-                        blockLeft.style.minHeight = '';
-                        blockRight.style.minHeight = '';
-                    }
-                }
-            }
-            ajustarAlturas();
-            window.addEventListener('resize', ajustarAlturas);
-
-            let _rafId;
-            const _mainEl = document.querySelector('main');
-            if (_mainEl) {
-                new MutationObserver(() => {
-                    if (_rafId) cancelAnimationFrame(_rafId);
-                    _rafId = requestAnimationFrame(ajustarAlturas);
-                }).observe(_mainEl, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
-            }
-
             function getIframes() {
                 setTimeout(() => {
                     var interval = setInterval(function() {

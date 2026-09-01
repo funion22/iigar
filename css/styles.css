@@ -7,7 +7,7 @@
 }
 body, html {
     scroll-behavior: smooth;
-    height: 100%;
+    min-height: 100%;
 }
 body {
     font-family: 'Inter', sans-serif;
@@ -17,11 +17,12 @@ input, select {
     outline: 0;
 } 
 .preSelection {
-    height: 100%;
+    min-height: 100%;
     width: 100%;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    padding: 0;
 }
 .overlay {
     position: fixed;
@@ -128,9 +129,8 @@ input, select {
     display: flex;
     width: 97%;
     max-width: 1540px;
-    height: 95vh;
-    /*overflow-y: auto;*/
-    overflow-y: hidden;
+    min-height: 95vh;
+    margin: 2.5vh 0;
     overflow-x: hidden;
     border-radius: 10px;
     background-color: white;
@@ -144,7 +144,6 @@ input, select {
     scrollbar-color: rgba(0,0,0,0.2) transparent;
 }
 .bodywb {
-    overflow-y: auto;
     filter: none;
 }
 .body::-webkit-scrollbar {
@@ -163,14 +162,13 @@ input, select {
 .blockleft, .blockright {
     display: inline-block;
     flex-shrink: 0;
-    align-self: flex-start;
+    align-self: stretch;
 }
 .blockleft {
     width: 230px;
     background-color: #edeae6;
     border-right: 2px solid #eeece7;
     flex-shrink: 0;
-    align-self: stretch;
     display: flex;
     flex-direction: column;
 }
@@ -207,6 +205,9 @@ input, select {
     z-index: 1;
     cursor: initial;
 }
+.blockleft .flags .linedivisor:last-child {
+    display: none;
+}
 /*.blockleft .flags .countrylink:last-child:after {
     background-color: rgba(0,0,0,0);
 }*/
@@ -225,7 +226,7 @@ input, select {
 main {
     width: calc(100% - 510px);
     background-color: #f9f7f5;
-    align-self: flex-start;
+    align-self: stretch;
     min-height: 95vh;
 }
 main .iframe {
@@ -1041,6 +1042,7 @@ main .subsubmenu .showhiddeniframe {
     }
     .domain-search-container {
         max-width: 400px;
+        position: static;
     }
 }
 @media only screen and (max-width: 1150px) {
