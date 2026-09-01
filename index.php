@@ -414,13 +414,16 @@ $vMainJS = @filemtime('js/main.js') ?: time();
             function getIframes() {
                 setTimeout(() => {
                     var interval = setInterval(function() {
-                        for (let i = 0; i < document.querySelectorAll('.ci').length; i++) {
-                            if ((document.querySelectorAll('.ci')[i].children.length = 7) && (document.querySelector('.script').children.length > 0)) {
-                                clearInterval(interval);
-                                document.getElementById("loading-overlay").style.display = "none";
-                                document.querySelector(".body").classList.add("bodywb");
-                                document.getElementById('overlay').style.display = 'none';
-                            }
+                        const containers = document.querySelectorAll('.ci');
+                        const scriptLoaded = document.querySelector('.script').children.length > 0;
+                        const allHaveIframe = containers.length > 0 &&
+                            Array.from(containers).every(c => c.querySelector('iframe.iframecapture'));
+
+                        if (allHaveIframe && scriptLoaded) {
+                            clearInterval(interval);
+                            document.getElementById("loading-overlay").style.display = "none";
+                            document.querySelector(".body").classList.add("bodywb");
+                            document.getElementById('overlay').style.display = 'none';
                         }
                     }, 100);
                 }, 100);

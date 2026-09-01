@@ -1,0 +1,13 @@
+# Caché del proxy de iframes (se regenera sola)
+/cache/
+
+# Logs
+*.log
+
+# Configuración local con credenciales
+.env
+config.local.php
+
+# Sistema
+Thumbs.db
+.DS_Store

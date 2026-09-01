@@ -141,10 +141,25 @@ if (!$is_allowed) {
     die('Error: Dominio no permitido');
 }
 
+// ── CACHÉ ──
+// Las landings remotas apenas cambian, y sin caché cada iframe de la página
+// bloquea un worker de PHP durante toda la descarga remota: con 30-40 landings
+// un solo usuario agota el pool. Se cachea el HTML ya procesado.
+$cache_ttl  = 900; // 15 minutos
+$cache_dir  = __DIR__ . '/cache/proxy';
+$cache_file = $cache_dir . '/' . hash('sha256', $url) . '.html';
+
+if (is_file($cache_file) && (time() - filemtime($cache_file)) < $cache_ttl) {
+    header('X-Proxy-Cache: HIT');
+    readfile($cache_file);
+    exit;
+}
+
 // Obtener contenido
 $context = stream_context_create([
     'http' => [
         'method' => 'GET',
+        'timeout' => 5,
         'header' => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\r\n"
     ],
     'ssl' => [
@@ -156,6 +171,13 @@ $context = stream_context_create([
 $html = @file_get_contents($url, false, $context);
 
 if ($html === false) {
+    // Si el sitio remoto falla pero queda una copia caducada, servirla:
+    // mejor una landing algo antigua que un iframe roto.
+    if (is_file($cache_file)) {
+        header('X-Proxy-Cache: STALE');
+        readfile($cache_file);
+        exit;
+    }
     http_response_code(500);
     die('Error: No se pudo cargar la URL');
 }
@@ -229,22 +251,37 @@ body {
 })();
 </script>
 ';
+// Resolver rutas relativas mediante <base> en lugar de reescribir el HTML con
+// regex: el reemplazo anterior insertaba siempre comilla doble y rompía los
+// atributos escritos con comilla simple (src='/x.js' -> src="https://host//x.js').
+$base_tag = '';
+if (!preg_match('/<base\b/i', $html)) {
+    $base_tag = '<base href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">';
+}
+$inject = $base_tag . $custom_code;
 
-// Insertar código antes de </head> o al inicio del body
-if (strpos($html, '</head>') !== false) {
-    $html = str_replace('</head>', $custom_code . '</head>', $html);
-} elseif (strpos($html, '<body') !== false) {
-    $html = preg_replace('/<body([^>]*)>/', '<body$1>' . $custom_code, $html, 1);
+// Insertar código antes de </head> o al inicio del body (solo la primera vez)
+$head_pos = stripos($html, '</head>');
+if ($head_pos !== false) {
+    $html = substr_replace($html, $inject, $head_pos, 0);
+} elseif (preg_match('/<body[^>]*>/i', $html, $m, PREG_OFFSET_CAPTURE)) {
+    $html = substr_replace($html, $inject, $m[0][1] + strlen($m[0][0]), 0);
 } else {
-    $html = $custom_code . $html;
+    $html = $inject . $html;
 }
 
-// Convertir URLs relativas a absolutas
-$base_url = $parsed_url['scheme'] . '://' . $parsed_url['host'];
+// Guardar en caché (escritura atómica para no servir respuestas a medias)
+if (!is_dir($cache_dir)) {
+    @mkdir($cache_dir, 0775, true);
+}
+if (is_dir($cache_dir)) {
+    $tmp_file = $cache_file . '.' . getmypid() . '.tmp';
+    if (@file_put_contents($tmp_file, $html) !== false) {
+        @rename($tmp_file, $cache_file);
+    } else {
+        @unlink($tmp_file);
+    }
+}
 
-$html = preg_replace('/src=["\']\\/(?!\\/)/', 'src="' . $base_url . '/', $html);
-$html = preg_replace('/href=["\']\\/(?!\\/)/', 'href="' . $base_url . '/', $html);
-$html = preg_replace('/url\\(["\']?\\/(?!\\/)/', 'url(' . $base_url . '/', $html);
-
+header('X-Proxy-Cache: MISS');
 echo $html;
-?>
