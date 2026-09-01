@@ -11,3 +11,4 @@ config.local.php
 # Sistema
 Thumbs.db
 .DS_Store
+db/
