@@ -112,6 +112,7 @@ $nextOrder = $pdo->query("SELECT COALESCE(MAX(sort_order), 0) + 1 FROM countries
                 <a href="index.php">Dashboard</a>
                 <a href="countries.php" class="active">Países</a>
                 <a href="domains.php">Dominios</a>
+                <a href="colores.php">Colores</a>
                 <a href="landings.php">Landings</a>
                 <a href="brandless_landings.php">Brandless</a>
                 <a href="campaign_types.php">Campañas</a>

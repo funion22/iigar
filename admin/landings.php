@@ -140,6 +140,7 @@ $colorOptions = ['pink', 'pink-t3', 'red', 'orange', 'mature-pink', 'mature-oran
                 <a href="index.php">Dashboard</a>
                 <a href="countries.php">Países</a>
                 <a href="domains.php">Dominios</a>
+                <a href="colores.php">Colores</a>
                 <a href="landings.php" class="active">Landings</a>
                 <a href="campaign_types.php">Campañas</a>
                 <a href="../index.php" target="_blank">Ver página →</a>

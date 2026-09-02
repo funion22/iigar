@@ -139,32 +139,8 @@ $domains = $stmt->fetchAll();
 $countries = $pdo->query("SELECT * FROM countries ORDER BY sort_order")->fetchAll();
 $nextOrder = $pdo->query("SELECT COALESCE(MAX(sort_order), 0) + 1 FROM domains")->fetchColumn();
 
-// Colores disponibles
-$colorOptions = [
-    'pinkshows' => 'Pink',
-    'pinkshowst3' => 'Pink T3',
-    'redshows' => 'Red',
-    'orangeshows' => 'Orange',
-    'maturepinkshows' => 'Mature Pink',
-    'matureorangeshows' => 'Mature Orange',
-];
-
-// Para brandless, los colores son especiales
-$brandlessColors = [
-    'fiirtingdashows' => 'Brandless Danish',
-    'fiirtingnlshows' => 'Brandless Dutch',
-    'fiirtingenshows' => 'Brandless English',
-    'fiirtingfishows' => 'Brandless Finnish',
-    'fiirtingfrshows' => 'Brandless French',
-    'fiirtingdeshows' => 'Brandless German',
-    'fiirtingitshows' => 'Brandless Italian',
-    'fiirtingnoshows' => 'Brandless Norwegian',
-    'fiirtingposhows' => 'Brandless Polish',
-    'fiirtingesshows' => 'Brandless Spanish',
-    'fiirtingseshows' => 'Brandless Swedish',
-];
-
-$allColors = array_merge($colorOptions, $brandlessColors);
+// Colores disponibles: $colorOptions, $brandlessColors y $allColors
+require_once 'colors.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -182,6 +158,7 @@ $allColors = array_merge($colorOptions, $brandlessColors);
                 <a href="index.php">Dashboard</a>
                 <a href="countries.php">Países</a>
                 <a href="domains.php" class="active">Dominios</a>
+                <a href="colores.php">Colores</a>
                 <a href="landings.php">Landings</a>
                 <a href="brandless_landings.php">Brandless</a>
                 <a href="campaign_types.php">Campañas</a>
